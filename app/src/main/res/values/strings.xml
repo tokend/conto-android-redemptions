@@ -33,4 +33,7 @@
     <string name="error_tx_kyc_required_to_own_asset">Only verified accounts can own this asset</string>
     <string name="retry">Retry</string>
     <string name="confirm">Confirm</string>
+    <string name="search">Search</string>
+    <string name="error_no_companies">No companies found</string>
+    <string name="explore_companies_title">Explore companies</string>
 </resources>

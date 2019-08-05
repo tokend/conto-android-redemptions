@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="@dimen/standard_margin"
+            android:paddingBottom="@dimen/standard_margin">
+
+        <ImageView
+                android:id="@+id/company_logo_image_view"
+                android:layout_width="@dimen/list_item_logo_size"
+                android:layout_height="@dimen/list_item_logo_size"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginLeft="@dimen/standard_margin"
+                tools:background="#ff0"/>
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginLeft="@dimen/standard_margin"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/company_name_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_lead"
+                    tools:text="Awesome Company"/>
+
+            <TextView
+                    android:id="@+id/company_industry_text_view"
+                    style="@style/SecondaryText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/quarter_standard_margin"
+                    android:visibility="gone"
+                    tools:text="industry"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+            android:id="@+id/divider_view"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
+            android:background="@drawable/line_divider"/>
+</LinearLayout>
