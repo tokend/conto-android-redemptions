@@ -1,0 +1,43 @@
+ext {
+    // ----- Android params -----
+
+    // Application ID - unique identifier of the app in Google Play and on user's device
+    version_name = '0.0.1'
+    // Version Code - code number for version,
+    // must be incremented after each release
+    version_code = 1
+
+    // --------------------------
+
+    // ----- Network params -----
+
+    // API URL - TokenD instance root URL
+    api_url = 'https://api.staging.conto.me'
+
+    // Storage URL - Root URL of file storage
+    storage_url = 'https://s3.eu-north-1.amazonaws.com/contostaging-identity-storage-festive-cannon-2'
+
+    // Client URL - URL of the related web-client
+    client_url = 'https://staging.conto.me/'
+
+    //Allow to log request and response information.
+    logs_enabled = true
+
+    // --------------------------
+}
+
+ext.applyAppConfig = { buildConfig ->
+    android {
+        defaultConfig {
+            versionName "${version_name}"
+            versionCode version_code
+        }
+    }
+
+    def b = buildConfig
+
+    b.buildConfigField 'String', 'API_URL', "\"${api_url}\""
+    b.buildConfigField 'String', 'STORAGE_URL', "\"${storage_url}\""
+    b.buildConfigField 'String', 'CLIENT_URL', "\"${client_url}\""
+    b.buildConfigField 'Boolean', 'WITH_LOGS', "${logs_enabled}"
+}

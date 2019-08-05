@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">Conto Redemptions</string>
+    <string name="error_cannot_be_empty">Cannot be empty</string>
+    <string name="error_invalid_email">Invalid email</string>
+    <string name="error_passwords_mismatch">Password doesn\'t match confirmation</string>
+    <string name="error_weak_password">Password is weak</string>
+    <string name="error_email_already_taken">Email is already taken</string>
+    <string name="error_try_again">An error occurred. Try again later</string>
+    <string name="error_connection_try_again">Connection error. Try again later</string>
+    <string name="error_invalid_password">Invalid password</string>
+    <string name="error_email_not_verified">Email is not verified</string>
+    <string name="error_insufficient_balance">Insufficient balance</string>
+    <string name="error_no_transferable_assets">No transferable assets found</string>
+    <string name="error_invalid_recipient">Invalid recipient</string>
+    <string name="error_no_withdrawable_assets">No withdrawable assets found</string>
+    <string name="error_no_tradeable_pairs">No tradeable pairs found</string>
+    <string name="error_cannot_send_to_yourself">Send to yourself is not allowed</string>
+    <string name="error_fingerprint_locked">Too many failed attempts. Try again later</string>
+    <string name="error_payment_amount_less_than_fee">Payment amount is less than recipient\'s fee</string>
+    <string name="error_password_changed">Password has been changed, enter your new password to continue</string>
+    <string name="error_unauthorized">The session has been expired</string>
+    <string name="error_tx_general">Transaction failed. Try again later</string>
+    <string name="error_tx_bad_auth">Transaction signature is invalid</string>
+    <string name="error_tx_limits">Transaction exceeds limits set to your account</string>
+    <string name="error_tx_insufficient_balance">@string/error_insufficient_balance</string>
+    <string name="error_tx_invalid_amount">Transaction amount is invalid</string>
+    <string name="error_tx_malformed">Transaction is malformed</string>
+    <string name="error_tx_account_blocked">Your account is blocked</string>
+    <string name="error_tx_invalid_fee">Transaction fee is invalid</string>
+    <string name="error_tx_not_allowed">You are not allowed to perform this action</string>
+    <string name="error_tx_cross_self">Current order crosses one of your existing orders</string>
+    <string name="error_tx_not_found">Requested entry not found</string>
+    <string name="error_tx_kyc_required_to_own_asset">Only verified accounts can own this asset</string>
+    <string name="retry">Retry</string>
+    <string name="confirm">Confirm</string>
 </resources>
