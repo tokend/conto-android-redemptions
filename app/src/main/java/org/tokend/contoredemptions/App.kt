@@ -11,6 +11,8 @@ import io.reactivex.plugins.RxJavaPlugins
 import org.tokend.contoredemptions.di.AppComponent
 import org.tokend.contoredemptions.di.DaggerAppComponent
 import org.tokend.contoredemptions.di.UtilsModule
+import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProviderModule
+import org.tokend.contoredemptions.util.UrlConfig
 import java.io.IOException
 import java.net.SocketException
 
@@ -32,6 +34,15 @@ class App : MultiDexApplication() {
                 .builder()
                 .utilsModule(
                     UtilsModule(this)
+                )
+                .urlConfigProviderModule(
+                        UrlConfigProviderModule(
+                                UrlConfig(
+                                        BuildConfig.API_URL,
+                                        BuildConfig.STORAGE_URL,
+                                        BuildConfig.CLIENT_URL
+                                )
+                        )
                 )
                 .build()
     }
