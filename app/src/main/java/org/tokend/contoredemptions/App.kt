@@ -36,23 +36,23 @@ class App : MultiDexApplication() {
 
     private fun initDi() {
         appComponent = DaggerAppComponent
-            .builder()
-            .utilsModule(
-                UtilsModule(this)
-            )
-            .urlConfigProviderModule(
-                UrlConfigProviderModule(
-                    UrlConfig(
-                        BuildConfig.API_URL,
-                        BuildConfig.STORAGE_URL,
-                        BuildConfig.CLIENT_URL
-                    )
+                .builder()
+                .utilsModule(
+                        UtilsModule(this)
                 )
-            )
-            .apiProviderModule(
-                ApiProviderModule(CookieJar.NO_COOKIES)
-            )
-            .build()
+                .urlConfigProviderModule(
+                        UrlConfigProviderModule(
+                                UrlConfig(
+                                        BuildConfig.API_URL,
+                                        BuildConfig.STORAGE_URL,
+                                        BuildConfig.CLIENT_URL
+                                )
+                        )
+                )
+                .apiProviderModule(
+                        ApiProviderModule(CookieJar.NO_COOKIES)
+                )
+                .build()
     }
 
     private fun initTls() {
@@ -82,13 +82,13 @@ class App : MultiDexApplication() {
             if ((e is NullPointerException) || (e is IllegalArgumentException)) {
                 // that's likely a bug in the application
                 Thread.currentThread().uncaughtExceptionHandler
-                    .uncaughtException(Thread.currentThread(), e)
+                        .uncaughtException(Thread.currentThread(), e)
                 return@setErrorHandler
             }
             if (e is IllegalStateException) {
                 // that's a bug in RxJava or in a custom operator
                 Thread.currentThread().uncaughtExceptionHandler
-                    .uncaughtException(Thread.currentThread(), e)
+                        .uncaughtException(Thread.currentThread(), e)
                 return@setErrorHandler
             }
             Log.w("RxErrorHandler", "Undeliverable exception received", e)
@@ -97,13 +97,13 @@ class App : MultiDexApplication() {
 
     private fun initPicasso() {
         val picasso = Picasso.Builder(this)
-            .downloader(
-                OkHttp3Downloader(
-                    cacheDir,
-                    8L * 1024 * 1024
+                .downloader(
+                        OkHttp3Downloader(
+                                cacheDir,
+                                8L * 1024 * 1024
+                        )
                 )
-            )
-            .build()
+                .build()
         Picasso.setSingletonInstance(picasso)
     }
 

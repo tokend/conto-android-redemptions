@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".features.dashboard.view.DashboardActivity">
+
+    <include layout="@layout/appbar" />
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottom_tabs"
+        android:layout_below="@id/appbar" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/bottom_tabs"
+        android:background="@color/divider" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:animateLayoutChanges="false"
+        android:background="@color/background"
+        app:elevation="0dp"
+        app:itemIconSize="20dp"
+        app:itemIconTint="@color/color_bottom_tab_content"
+        app:itemTextAppearanceActive="@style/BottomTabsTextAppearance"
+        app:itemTextAppearanceInactive="@style/BottomTabsTextAppearance"
+        app:itemTextColor="@color/color_bottom_tab_content"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/dashboard_bottom" />
+</RelativeLayout>

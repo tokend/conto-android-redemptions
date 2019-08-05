@@ -8,8 +8,10 @@ import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
+import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 import org.tokend.contoredemptions.R
+import org.tokend.contoredemptions.features.dashboard.view.DashboardActivity
 
 /**
  * Performs transitions between screens.
@@ -74,6 +76,11 @@ class Navigator private constructor() {
         activity.finish()
     }
 
+    private fun finishAffinity(activity: Activity) {
+        activity.setResult(Activity.RESULT_CANCELED, null)
+        ActivityCompat.finishAffinity(activity)
+    }
+
     private fun createTransitionBundle(activity: Activity, vararg pairs: Pair<View?, String>): Bundle {
         val sharedViews = arrayListOf<androidx.core.util.Pair<View, String>>()
 
@@ -90,5 +97,19 @@ class Navigator private constructor() {
             ActivityOptionsCompat.makeSceneTransitionAnimation(activity,
                     *sharedViews.toTypedArray()).toBundle() ?: Bundle.EMPTY
         }
+    }
+
+    fun toDashboard(finishAffinity: Boolean) {
+        context?.intentFor<DashboardActivity>()
+                ?.also {
+                    performIntent(it)
+                    activity?.let { activity ->
+                        if (finishAffinity) {
+                            finishAffinity(activity)
+                        } else {
+                            activity.finish()
+                        }
+                    }
+                }
     }
 }
