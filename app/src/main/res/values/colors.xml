@@ -12,4 +12,6 @@
     <color name="secondary_text">#8D8D8D</color>
     <color name="received">#33A494</color>
     <color name="sent">#c2243b</color>
+    <color name="divider">#1F000000</color>
+    <color name="white">#ffffff</color>
 </resources>

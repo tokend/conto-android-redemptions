@@ -27,4 +27,6 @@
     <dimen name="default_card_elevation">2dp</dimen>
 
     <dimen name="max_content_width">640dp</dimen>
+
+    <dimen name="list_item_logo_size">56dp</dimen>
 </resources>

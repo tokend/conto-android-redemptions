@@ -6,11 +6,15 @@ import androidx.multidex.MultiDexApplication
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
+import com.jakewharton.picasso.OkHttp3Downloader
+import com.squareup.picasso.Picasso
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
+import okhttp3.CookieJar
 import org.tokend.contoredemptions.di.AppComponent
 import org.tokend.contoredemptions.di.DaggerAppComponent
 import org.tokend.contoredemptions.di.UtilsModule
+import org.tokend.contoredemptions.di.apiprovider.ApiProviderModule
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProviderModule
 import org.tokend.contoredemptions.util.UrlConfig
 import java.io.IOException
@@ -27,24 +31,28 @@ class App : MultiDexApplication() {
         initDi()
         initTls()
         initRxErrorHandler()
+        initPicasso()
     }
 
     private fun initDi() {
         appComponent = DaggerAppComponent
-                .builder()
-                .utilsModule(
-                    UtilsModule(this)
+            .builder()
+            .utilsModule(
+                UtilsModule(this)
+            )
+            .urlConfigProviderModule(
+                UrlConfigProviderModule(
+                    UrlConfig(
+                        BuildConfig.API_URL,
+                        BuildConfig.STORAGE_URL,
+                        BuildConfig.CLIENT_URL
+                    )
                 )
-                .urlConfigProviderModule(
-                        UrlConfigProviderModule(
-                                UrlConfig(
-                                        BuildConfig.API_URL,
-                                        BuildConfig.STORAGE_URL,
-                                        BuildConfig.CLIENT_URL
-                                )
-                        )
-                )
-                .build()
+            )
+            .apiProviderModule(
+                ApiProviderModule(CookieJar.NO_COOKIES)
+            )
+            .build()
     }
 
     private fun initTls() {
@@ -74,17 +82,29 @@ class App : MultiDexApplication() {
             if ((e is NullPointerException) || (e is IllegalArgumentException)) {
                 // that's likely a bug in the application
                 Thread.currentThread().uncaughtExceptionHandler
-                        .uncaughtException(Thread.currentThread(), e)
+                    .uncaughtException(Thread.currentThread(), e)
                 return@setErrorHandler
             }
             if (e is IllegalStateException) {
                 // that's a bug in RxJava or in a custom operator
                 Thread.currentThread().uncaughtExceptionHandler
-                        .uncaughtException(Thread.currentThread(), e)
+                    .uncaughtException(Thread.currentThread(), e)
                 return@setErrorHandler
             }
             Log.w("RxErrorHandler", "Undeliverable exception received", e)
         }
+    }
+
+    private fun initPicasso() {
+        val picasso = Picasso.Builder(this)
+            .downloader(
+                OkHttp3Downloader(
+                    cacheDir,
+                    8L * 1024 * 1024
+                )
+            )
+            .build()
+        Picasso.setSingletonInstance(picasso)
     }
 
     private fun areGooglePlayServicesAvailable(): Boolean {
