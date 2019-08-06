@@ -40,6 +40,9 @@
     <string name="redemptions_history">History</string>
     <string name="template_balance_change_by_account">By %1$s</string>
     <string name="no_redemptions_yet">No accepted requests yet</string>
+    <string name="balance_change_cause_redemption">Redemption</string>
+    <string name="redemption_account">Account</string>
+    <string name="redemption_company">Company</string>
     <string-array name="months">
         <item>January</item>
         <item>February</item>

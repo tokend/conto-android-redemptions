@@ -15,6 +15,7 @@ import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.history.data.storage.RedemptionsRepository
 import org.tokend.contoredemptions.features.history.view.adapter.RedemptionListItem
 import org.tokend.contoredemptions.features.history.view.adapter.RedemptionsAdapter
+import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.util.formatter.AccountIdFormatter
 import org.tokend.contoredemptions.view.util.ElevationUtil
@@ -98,7 +99,7 @@ class RedemptionsFragment : BaseFragment() {
     }
 
     private fun openDetails(item: RedemptionRecord) {
-        // TODO
+        Navigator.from(this).openRedemptionDetails(item)
     }
 
     private fun update() {
