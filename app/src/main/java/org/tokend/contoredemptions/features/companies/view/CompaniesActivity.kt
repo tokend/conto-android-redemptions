@@ -59,7 +59,7 @@ class CompaniesActivity : BaseActivity() {
     }
 
     private fun initToolbar() {
-        toolbar.title = getString(R.string.explore_companies_title)
+        toolbar.title = getString(R.string.select_company_title)
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
         toolbar.setNavigationOnClickListener { finish() }
         ElevationUtil.initScrollElevation(recycler_view, appbar_elevation_view)

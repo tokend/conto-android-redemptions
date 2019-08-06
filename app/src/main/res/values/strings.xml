@@ -35,8 +35,7 @@
     <string name="confirm">Confirm</string>
     <string name="search">Search</string>
     <string name="error_no_companies">No companies found</string>
-    <string name="explore_companies_title">Select company</string>
+    <string name="select_company_title">Select company</string>
     <string name="scan">Scan</string>
     <string name="redemptions_history">History</string>
-    <string name="companies">Companies</string>
 </resources>
