@@ -16,6 +16,7 @@ import javax.inject.Singleton
         UrlConfigProviderModule::class,
         RepositoryProviderModule::class,
         CompanyProviderModule::class,
+        AppDatabaseModule::class,
         UtilsModule::class
     ]
 )
