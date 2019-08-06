@@ -41,6 +41,13 @@ class RedemptionsDbService(
         }.subscribeOn(Schedulers.io())
     }
 
+    override fun isReferenceKnown(reference: Long): Single<Boolean> {
+        return Single.defer {
+            val exists = dao.countByReference(reference) > 0
+            Single.just(exists)
+        }.subscribeOn(Schedulers.io())
+    }
+
     private companion object {
         private const val DEFAULT_LIMIT = 40
     }

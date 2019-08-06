@@ -35,6 +35,11 @@ class RedemptionsRepository(
                 }
     }
 
+    fun isReferenceKnown(reference: Long): Single<Boolean> {
+        return service
+            .isReferenceKnown(reference)
+    }
+
     private companion object {
         private const val PAGE_LIMIT = 40
     }

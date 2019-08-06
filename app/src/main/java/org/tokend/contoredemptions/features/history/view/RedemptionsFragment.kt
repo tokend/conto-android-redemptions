@@ -62,39 +62,39 @@ class RedemptionsFragment : BaseFragment() {
 
     private fun subscibeToRedemptions() {
         redemptionsRepository
-                .itemsSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { displayRedemptions() }
-                .addTo(compositeDisposable)
+            .itemsSubject
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe { displayRedemptions() }
+            .addTo(compositeDisposable)
 
         redemptionsRepository
-                .loadingSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { isLoading ->
-                    if (isLoading) {
-                        adapter.showLoadingFooter()
-                    } else {
-                        adapter.hideLoadingFooter()
-                    }
+            .loadingSubject
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe { isLoading ->
+                if (isLoading) {
+                    adapter.showLoadingFooter()
+                } else {
+                    adapter.hideLoadingFooter()
                 }
-                .addTo(compositeDisposable)
+            }
+            .addTo(compositeDisposable)
 
         redemptionsRepository
-                .errorsSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { error ->
-                    if (!adapter.hasData) {
-                        error_empty_view.showError(error, errorHandlerFactory.getDefault())
-                    } else {
-                        errorHandlerFactory.getDefault().handle(error)
-                    }
+            .errorsSubject
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe { error ->
+                if (!adapter.hasData) {
+                    error_empty_view.showError(error, errorHandlerFactory.getDefault())
+                } else {
+                    errorHandlerFactory.getDefault().handle(error)
                 }
-                .addTo(compositeDisposable)
+            }
+            .addTo(compositeDisposable)
     }
 
     private fun displayRedemptions() {
         val items = redemptionsRepository.itemsList
-                .map { RedemptionListItem(it, accountIdFormatter) }
+            .map { RedemptionListItem(it, accountIdFormatter) }
         adapter.setData(items)
     }
 

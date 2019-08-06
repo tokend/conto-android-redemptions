@@ -15,4 +15,7 @@ interface RedemptionsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg items: RedemptionDbEntity)
+
+    @Query("SELECT COUNT(*) FROM redemption WHERE reference=:reference")
+    fun countByReference(reference: Long): Int
 }

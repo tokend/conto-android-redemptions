@@ -12,4 +12,6 @@ interface RedemptionsService {
                 pagingParams: PagingParams): Single<DataPage<RedemptionRecord>>
 
     fun add(redemptionRecord: RedemptionRecord): Completable
+
+    fun isReferenceKnown(reference: Long): Single<Boolean>
 }
