@@ -4,6 +4,7 @@ import dagger.Component
 import org.tokend.contoredemptions.base.view.BaseActivity
 import org.tokend.contoredemptions.base.view.BaseFragment
 import org.tokend.contoredemptions.di.apiprovider.ApiProviderModule
+import org.tokend.contoredemptions.di.companyprovider.CompanyProviderModule
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProviderModule
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProviderModule
 import javax.inject.Singleton
@@ -14,6 +15,7 @@ import javax.inject.Singleton
         ApiProviderModule::class,
         UrlConfigProviderModule::class,
         RepositoryProviderModule::class,
+        CompanyProviderModule::class,
         UtilsModule::class
     ]
 )

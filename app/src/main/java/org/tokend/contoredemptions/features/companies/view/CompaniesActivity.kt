@@ -1,5 +1,6 @@
 package org.tokend.contoredemptions.features.companies.view
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
@@ -14,8 +15,10 @@ import kotlinx.android.synthetic.main.toolbar.*
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
 import org.tokend.contoredemptions.features.companies.data.CompaniesRepository
+import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 import org.tokend.contoredemptions.features.companies.view.adapter.CompaniesAdapter
 import org.tokend.contoredemptions.features.companies.view.adapter.CompanyListItem
+import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.util.SearchUtil
 import org.tokend.contoredemptions.view.util.*
@@ -23,8 +26,8 @@ import org.tokend.contoredemptions.view.util.*
 class CompaniesActivity : BaseActivity() {
 
     private val loadingIndicator = LoadingIndicatorManager(
-        showLoading = { swipe_refresh.isRefreshing = true },
-        hideLoading = { swipe_refresh.isRefreshing = false }
+            showLoading = { swipe_refresh.isRefreshing = true },
+            hideLoading = { swipe_refresh.isRefreshing = false }
     )
 
     private val companiesRepository: CompaniesRepository
@@ -81,12 +84,12 @@ class CompaniesActivity : BaseActivity() {
         error_empty_view.observeAdapter(companiesAdapter, R.string.error_no_companies)
         error_empty_view.setEmptyViewDenial { companiesRepository.isNeverUpdated }
 
-        companiesAdapter.onItemClick { view, item ->
-
+        companiesAdapter.onItemClick { _, item ->
+            item.source?.also(this::onCompanySelected)
         }
 
         companiesAdapter.registerAdapterDataObserver(
-            ScrollOnTopItemUpdateAdapterObserver(recycler_view)
+                ScrollOnTopItemUpdateAdapterObserver(recycler_view)
         )
 
         ElevationUtil.initScrollElevation(recycler_view, appbar_elevation_view)
@@ -103,12 +106,12 @@ class CompaniesActivity : BaseActivity() {
 
             searchManager.queryHint = getString(R.string.search)
             searchManager
-                .queryChanges
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { newValue ->
-                    filter = newValue.takeIf { it.isNotEmpty() }
-                }
-                .addTo(compositeDisposable)
+                    .queryChanges
+                    .compose(ObservableTransformers.defaultSchedulers())
+                    .subscribe { newValue ->
+                        filter = newValue.takeIf { it.isNotEmpty() }
+                    }
+                    .addTo(compositeDisposable)
 
             this.searchItem = searchItem
         } catch (e: Exception) {
@@ -122,31 +125,31 @@ class CompaniesActivity : BaseActivity() {
         companiesDisposable?.dispose()
 
         companiesRepository.itemsSubject
-            .compose(ObservableTransformers.defaultSchedulers())
-            .subscribe {
-                displayCompanies()
-            }
-            .addTo(compositeDisposable)
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribe {
+                    displayCompanies()
+                }
+                .addTo(compositeDisposable)
 
         companiesRepository.loadingSubject
-            .compose(ObservableTransformers.defaultSchedulers())
-            .subscribe {
-                loadingIndicator.setLoading(it, "companies")
-            }
-            .addTo(compositeDisposable)
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribe {
+                    loadingIndicator.setLoading(it, "companies")
+                }
+                .addTo(compositeDisposable)
 
         companiesRepository.errorsSubject
-            .compose(ObservableTransformers.defaultSchedulers())
-            .subscribe { error ->
-                if (!companiesAdapter.hasData) {
-                    error_empty_view.showError(error, errorHandlerFactory.getDefault()) {
-                        update(true)
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribe { error ->
+                    if (!companiesAdapter.hasData) {
+                        error_empty_view.showError(error, errorHandlerFactory.getDefault()) {
+                            update(true)
+                        }
+                    } else {
+                        errorHandlerFactory.getDefault().handle(error)
                     }
-                } else {
-                    errorHandlerFactory.getDefault().handle(error)
                 }
-            }
-            .addTo(compositeDisposable)
+                .addTo(compositeDisposable)
     }
 
     private fun onFilterChanged() {
@@ -155,25 +158,24 @@ class CompaniesActivity : BaseActivity() {
 
     private fun displayCompanies() {
         val items = companiesRepository.itemsList
-            .asSequence()
-            .map { company ->
-                CompanyListItem(company)
-            }
-            .sortedWith(Comparator { o1, o2 ->
-                return@Comparator o1.name.compareTo(o2.name, true)
-            })
-            .toList()
-            .let { items ->
-                filter?.let {
-                    items.filter { item ->
-                        SearchUtil.isMatchGeneralCondition(it, item.name, item.industry)
-                    }
-                } ?: items
-            }
+                .asSequence()
+                .map { company ->
+                    CompanyListItem(company)
+                }
+                .sortedWith(Comparator { o1, o2 ->
+                    return@Comparator o1.name.compareTo(o2.name, true)
+                })
+                .toList()
+                .let { items ->
+                    filter?.let {
+                        items.filter { item ->
+                            SearchUtil.isMatchGeneralCondition(it, item.name, item.industry)
+                        }
+                    } ?: items
+                }
 
         companiesAdapter.setData(items)
     }
-
 
     private fun update(force: Boolean = false) {
         if (!force) {
@@ -181,6 +183,12 @@ class CompaniesActivity : BaseActivity() {
         } else {
             companiesRepository.update()
         }
+    }
+
+    private fun onCompanySelected(company: CompanyRecord) {
+        companyProvider.setCompany(company)
+        setResult(Activity.RESULT_OK)
+        Navigator.from(this).toDashboard()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {

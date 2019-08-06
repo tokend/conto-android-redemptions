@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 import org.tokend.contoredemptions.R
+import org.tokend.contoredemptions.features.companies.view.CompaniesActivity
 import org.tokend.contoredemptions.features.dashboard.view.DashboardActivity
 
 /**
@@ -99,17 +100,16 @@ class Navigator private constructor() {
         }
     }
 
-    fun toDashboard(finishAffinity: Boolean) {
+    fun toDashboard() {
         context?.intentFor<DashboardActivity>()
                 ?.also {
                     performIntent(it)
-                    activity?.let { activity ->
-                        if (finishAffinity) {
-                            finishAffinity(activity)
-                        } else {
-                            activity.finish()
-                        }
-                    }
+                    activity?.finish()
                 }
+    }
+
+    fun openCompanies(requestCode: Int = 0) {
+        context?.intentFor<CompaniesActivity>()
+                ?.also { performIntent(it, requestCode = requestCode) }
     }
 }
