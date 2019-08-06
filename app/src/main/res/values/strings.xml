@@ -38,4 +38,20 @@
     <string name="select_company_title">Select company</string>
     <string name="scan">Scan</string>
     <string name="redemptions_history">History</string>
+    <string name="template_balance_change_by_account">By %1$s</string>
+    <string name="no_redemptions_yet">No accepted requests yet</string>
+    <string-array name="months">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
 </resources>

@@ -8,18 +8,21 @@ import org.tokend.contoredemptions.base.data.repository.MemoryOnlyRepositoryCach
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
 import org.tokend.contoredemptions.extensions.getOrPut
+import org.tokend.contoredemptions.features.assets.data.model.SimpleAsset
 import org.tokend.contoredemptions.features.companies.data.CompaniesRepository
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.history.data.service.RedemptionsService
 import org.tokend.contoredemptions.features.history.data.storage.RedemptionsRepository
 import org.tokend.sdk.api.base.model.DataPage
 import org.tokend.sdk.api.base.params.PagingParams
+import java.math.BigDecimal
+import java.util.*
 
 class AppRepositoryProvider(
-    private val apiProvider: ApiProvider,
-    private val objectMapper: ObjectMapper,
-    private val urlConfigProvider: UrlConfigProvider
-): RepositoryProvider {
+        private val apiProvider: ApiProvider,
+        private val objectMapper: ObjectMapper,
+        private val urlConfigProvider: UrlConfigProvider
+) : RepositoryProvider {
 
     private val companiesRepository: CompaniesRepository by lazy {
         CompaniesRepository(apiProvider, urlConfigProvider, MemoryOnlyRepositoryCache())
@@ -38,9 +41,24 @@ class AppRepositoryProvider(
             RedemptionsRepository(
                     companyId,
                     // TODO: Use real
-                    object: RedemptionsService {
+                    object : RedemptionsService {
                         override fun getPage(companyId: String, pagingParams: PagingParams): Single<DataPage<RedemptionRecord>> {
-                            return Single.just(DataPage(null, emptyList(), true))
+                            return Single.just(DataPage(null,
+                                    (0..40).map {
+                                        RedemptionRecord(
+                                                RedemptionRecord.Account(
+                                                        "", "ole@mail.com"
+                                                ),
+                                                RedemptionRecord.Company(
+                                                        "", ""
+                                                ),
+                                                amount = BigDecimal.TEN,
+                                                date = Date(),
+                                                asset = SimpleAsset("OLE", 6, "Oleg's coins"),
+                                                reference = it.toLong()
+                                        )
+                                    }
+                            , true))
                         }
 
                         override fun add(redemptionRecord: RedemptionRecord): Completable {

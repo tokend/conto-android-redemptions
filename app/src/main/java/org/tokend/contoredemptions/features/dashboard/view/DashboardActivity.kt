@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
+import org.tokend.contoredemptions.features.history.view.RedemptionsFragment
 import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.view.util.LogoUtil
 
@@ -92,7 +93,7 @@ class DashboardActivity : BaseActivity() {
         // TODO: Use real fragments
         when (id) {
             R.id.scan -> displayFragment(Fragment())
-            R.id.history -> displayFragment(Fragment())
+            R.id.history -> displayFragment(RedemptionsFragment())
             else -> Log.e("Dashboard", "Unknown screen ID")
         }
     }
