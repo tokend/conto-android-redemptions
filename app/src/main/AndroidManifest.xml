@@ -32,7 +32,8 @@
         <activity
             android:name=".features.redemption.view.ConfirmRedemptionActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar.TransparentSystemUi.BlackNavigationBar" />
         <activity
             android:name=".features.history.view.RedemptionDetailsActivity"
             android:configChanges="orientation|screenSize"

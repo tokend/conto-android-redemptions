@@ -35,7 +35,6 @@
     <string name="successfully_accepted_redemption">Redemption has been accepted</string>
     <string name="error_invalid_redemption_request">Invalid redemption request. Try again</string>
     <string name="error_redemption_request_no_more_valid">The request is already processed and no more valid</string>
-    <string name="confirm_action">Confirm</string>
     <string name="template_balance_change_by_account">By %1$s</string>
     <string name="no_redemptions_yet">No accepted requests yet</string>
     <string name="redemption_account">Account</string>

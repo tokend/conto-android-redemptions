@@ -193,7 +193,7 @@ class CompaniesActivity : BaseActivity() {
         Navigator.from(this).toDashboard()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateListColumnsCount()
     }

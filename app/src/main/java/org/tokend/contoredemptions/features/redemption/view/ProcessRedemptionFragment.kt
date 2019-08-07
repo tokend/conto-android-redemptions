@@ -1,7 +1,7 @@
 package org.tokend.contoredemptions.features.redemption.view
 
+import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -129,15 +129,11 @@ class ProcessRedemptionFragment : BaseFragment() {
             return
         }
 
-        Navigator.from(this)
-                .openAcceptRedemption(request.serialize(networkParams).encodeBase64String(), asset)
-
-        // Open scanner with delay to avoid double scan of the same request.
-        Handler().postDelayed({
-            if (!isDetached) {
-                toScan()
-            }
-        }, 500)
+        Navigator.from(this).openAcceptRedemption(
+                request.serialize(networkParams).encodeBase64String(),
+                asset,
+                CONFIRM_REDEMPTION_REQUEST
+        )
     }
 
     private fun onRedemptionProcessingError(error: Throwable) {
@@ -166,7 +162,15 @@ class ProcessRedemptionFragment : BaseFragment() {
                 .commit()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CONFIRM_REDEMPTION_REQUEST) {
+            toScan()
+        }
+    }
+
     private companion object {
         private const val SYSTEM_INFO_LOADING_RETRY_INTERVAL_S = 1L
+        private val CONFIRM_REDEMPTION_REQUEST = "confirm_redemption".hashCode() and 0xfff
     }
 }
