@@ -6,10 +6,12 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
 import org.tokend.contoredemptions.App
+import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.companyprovider.CompanyProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
 import org.tokend.contoredemptions.util.errorhandler.ErrorHandlerFactory
+import org.tokend.contoredemptions.util.errorhandler.ErrorLogger
 import org.tokend.contoredemptions.util.formatter.AmountFormatter
 import org.tokend.contoredemptions.util.formatter.DateFormatter
 import org.tokend.contoredemptions.view.ToastManager
@@ -29,8 +31,12 @@ abstract class BaseFragment : Fragment() {
     @Inject
     lateinit var companyProvider: CompanyProvider
     @Inject
+    lateinit var apiProvider: ApiProvider
+    @Inject
     lateinit var dateFormatter: DateFormatter
-    
+    @Inject
+    lateinit var errorLogger: ErrorLogger
+
     /**
      * Disposable holder which will be disposed on fragment destroy
      */

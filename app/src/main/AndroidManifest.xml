@@ -4,6 +4,7 @@
     package="org.tokend.contoredemptions">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".App"
@@ -28,6 +29,11 @@
             android:name=".features.dashboard.view.DashboardActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.redemption.view.ConfirmRedemptionActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar.TransparentSystemUi.BlackNavigationBar" />
         <activity
             android:name=".features.history.view.RedemptionDetailsActivity"
             android:configChanges="orientation|screenSize"

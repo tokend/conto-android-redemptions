@@ -30,9 +30,9 @@ class RedemptionDetailsActivity : BaseActivity() {
         val redemption = intent.getSerializableExtra(REDEMPTION_EXTRA) as? RedemptionRecord
         if (redemption == null) {
             errorHandlerFactory.getDefault().handle(
-                IllegalArgumentException(
-                    "No $REDEMPTION_EXTRA specified"
-                )
+                    IllegalArgumentException(
+                            "No $REDEMPTION_EXTRA specified"
+                    )
             )
             finish()
             return
@@ -64,11 +64,11 @@ class RedemptionDetailsActivity : BaseActivity() {
 
     private fun displayDetails() {
         mainDataView.displayAmount(
-            redemption.amount,
-            redemption.asset,
-            null
+                redemption.amount,
+                redemption.asset,
+                null
         )
-        mainDataView.displayOperationName(getString(R.string.balance_change_cause_redemption))
+        mainDataView.displayOperationName(getString(R.string.operation_redemption))
         mainDataView.displayDate(redemption.date)
 
         displayAccount()
@@ -79,22 +79,22 @@ class RedemptionDetailsActivity : BaseActivity() {
         val accountIdFormatter = AccountIdFormatter()
 
         adapter.addData(
-            DetailsItem(
-                icon = ContextCompat.getDrawable(this, R.drawable.ic_account),
-                hint = getString(R.string.redemption_account),
-                text = redemption.sourceAccount.nickname
-                    ?: accountIdFormatter.formatShort(redemption.sourceAccount.id)
-            )
+                DetailsItem(
+                        icon = ContextCompat.getDrawable(this, R.drawable.ic_account),
+                        hint = getString(R.string.redemption_account),
+                        text = redemption.sourceAccount.nickname
+                                ?: accountIdFormatter.formatShort(redemption.sourceAccount.id)
+                )
         )
     }
 
     private fun displayCompany() {
         adapter.addData(
-            DetailsItem(
-                icon = ContextCompat.getDrawable(this, R.drawable.ic_briefcase),
-                hint = getString(R.string.redemption_company),
-                text = redemption.company.name
-            )
+                DetailsItem(
+                        icon = ContextCompat.getDrawable(this, R.drawable.ic_briefcase),
+                        hint = getString(R.string.redemption_company),
+                        text = redemption.company.name
+                )
         )
     }
 
