@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
 import org.tokend.contoredemptions.App
+import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.companyprovider.CompanyProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
@@ -27,6 +28,8 @@ abstract class BaseFragment : Fragment() {
     lateinit var amountFormatter: AmountFormatter
     @Inject
     lateinit var companyProvider: CompanyProvider
+    @Inject
+    lateinit var apiProvider: ApiProvider
     
     /**
      * Disposable holder which will be disposed on fragment destroy

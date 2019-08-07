@@ -18,8 +18,11 @@ import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
 import org.tokend.contoredemptions.util.Navigator
+import org.tokend.contoredemptions.view.util.FragmentFactory
 
 class DashboardActivity : BaseActivity() {
+
+    private val fragmentFactory = FragmentFactory()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +68,8 @@ class DashboardActivity : BaseActivity() {
     private fun displayFragment(id: Int) {
         // TODO: Use real fragments
         when (id) {
-            R.id.scan -> displayFragment(Fragment())
-            R.id.history -> displayFragment(Fragment())
+            R.id.scan -> displayFragment(fragmentFactory.getScanRedemptionFragment())
+            R.id.history -> displayFragment(fragmentFactory.getHistoryFragment())
             else -> Log.e("Dashboard", "Unknown screen ID")
         }
     }

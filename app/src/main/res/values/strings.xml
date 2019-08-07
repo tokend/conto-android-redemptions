@@ -39,4 +39,18 @@
     <string name="scan">Scan</string>
     <string name="redemptions_history">History</string>
     <string name="companies">Companies</string>
+    <string name="enable_flash_action">Turn on flashlight</string>
+    <string name="disable_flash_action">Turn off flashlight</string>
+    <string name="redemption_scan_hint">Scan Redemption request qr code</string>
+    <string name="open_scanner_action">Open scanner</string>
+    <string name="camera_permission_required_hint">Camera permission required</string>
+    <string name="error_redemption_wrong_asset">%1$s do not own this asset</string>
+    <string name="no_fee_charged">No fee charged</string>
+    <string name="processing_progress">Processing…</string>
+    <string name="operation_redemption">Redemption</string>
+    <string name="successfully_accepted_redemption">Redemption has been accepted</string>
+    <string name="error_invalid_redemption_request">Invalid redemption request. Try again</string>
+    <string name="error_redemption_request_no_more_valid">The request is already processed and no more valid</string>
+    <string name="confirm_action">Confirm</string>
+    <string name="tx_recipient">Recipient</string>
 </resources>

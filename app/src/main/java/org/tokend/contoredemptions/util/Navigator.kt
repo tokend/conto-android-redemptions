@@ -13,6 +13,7 @@ import org.jetbrains.anko.newTask
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.features.companies.view.CompaniesActivity
 import org.tokend.contoredemptions.features.dashboard.view.DashboardActivity
+import org.tokend.contoredemptions.features.redemption.view.ConfirmRedemptionActivity
 
 /**
  * Performs transitions between screens.
@@ -111,5 +112,11 @@ class Navigator private constructor() {
     fun openCompanies(requestCode: Int = 0) {
         context?.intentFor<CompaniesActivity>()
                 ?.also { performIntent(it, requestCode = requestCode) }
+    }
+
+    fun openAcceptRedemption(redemptionRequest: String, requestCode: Int = 0) {
+        context?.intentFor<ConfirmRedemptionActivity>()
+            ?.putExtras(ConfirmRedemptionActivity.getBundle(redemptionRequest))
+            ?.also { performIntent(it, requestCode = requestCode) }
     }
 }

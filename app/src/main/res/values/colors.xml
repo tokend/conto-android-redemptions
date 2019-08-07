@@ -14,4 +14,6 @@
     <color name="sent">#c2243b</color>
     <color name="divider">#1F000000</color>
     <color name="white">#ffffff</color>
+    <color name="mainActionButtonDisabled">#bcbcbc</color>
+    <color name="material_drawer_divider">#1F000000</color>
 </resources>
