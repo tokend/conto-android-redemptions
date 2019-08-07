@@ -9,6 +9,7 @@ import org.tokend.contoredemptions.features.history.data.model.RedemptionDbEntit
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.history.data.storage.RedemptionsDao
 import org.tokend.sdk.api.base.model.DataPage
+import org.tokend.sdk.api.base.params.PagingOrder
 import org.tokend.sdk.api.base.params.PagingParams
 
 class RedemptionsDbService(
@@ -19,6 +20,12 @@ class RedemptionsDbService(
         return Single.defer {
             val limit = pagingParams.limit ?: DEFAULT_LIMIT
             val cursor = pagingParams.cursor?.toLongOrNull() ?: Long.MAX_VALUE
+
+            if (pagingParams.order == PagingOrder.ASC) {
+                return@defer Single.error(
+                        NotImplementedError("${PagingOrder.ASC} order is not implemented")
+                )
+            }
 
             val items = dao.getPageDesc(
                     companyId,
