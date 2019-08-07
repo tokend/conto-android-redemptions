@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
@@ -81,12 +82,17 @@ class ProcessRedemptionFragment : BaseFragment() {
     }
 
     private fun validateAndConfirmRedemption(request: RedemptionRequest) {
-        ValidateRedemptionRequestUseCase(
-                request,
-                companyProvider.getCompany(),
-                repositoryProvider
-        )
-                .perform()
+        val performValidation =
+                ValidateRedemptionRequestUseCase(
+                        request,
+                        companyProvider.getCompany(),
+                        repositoryProvider
+                )
+                        .perform()
+
+        val visualTimeout = Completable.timer(500, TimeUnit.MILLISECONDS)
+
+        Completable.mergeDelayError(listOf(performValidation, visualTimeout))
                 .compose(ObservableTransformers.defaultSchedulersCompletable())
                 .doOnSubscribe {
                     toLoading()

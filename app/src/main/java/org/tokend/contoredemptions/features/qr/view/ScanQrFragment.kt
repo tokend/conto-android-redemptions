@@ -143,7 +143,7 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
 
         val scheduleErrorFadeOut = {
             hideQrScanErrorDisposable =
-                Observable.timer(1, TimeUnit.SECONDS)
+                Observable.timer(ERROR_DURATION_MS, TimeUnit.MILLISECONDS)
                     .compose(ObservableTransformers.defaultSchedulers())
                     .subscribeBy(
                         onComplete = {
@@ -194,6 +194,7 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
     abstract fun getResult(content: String): ResultType
 
     companion object {
+        private const val ERROR_DURATION_MS = 1500L
         private const val PRE_SET_ERROR_EXTRA = "pre_set_error"
 
         fun getBundle(preSetError: String?) = Bundle().apply {
