@@ -112,12 +112,13 @@ class Navigator private constructor() {
 
     fun openCompanies(requestCode: Int = 0) {
         context?.intentFor<CompaniesActivity>()
+                ?.putExtras(CompaniesActivity.getBundle(canGoBack = true))
                 ?.also { performIntent(it, requestCode = requestCode) }
     }
 
     fun openRedemptionDetails(redemption: RedemptionRecord) {
         context?.intentFor<RedemptionDetailsActivity>()
-            ?.putExtras(RedemptionDetailsActivity.getBundle(redemption))
-            ?.also { performIntent(it) }
+                ?.putExtras(RedemptionDetailsActivity.getBundle(redemption))
+                ?.also { performIntent(it) }
     }
 }

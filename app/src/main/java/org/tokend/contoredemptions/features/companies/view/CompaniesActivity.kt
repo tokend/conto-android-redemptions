@@ -46,6 +46,9 @@ class CompaniesActivity : BaseActivity() {
             }
         }
 
+    private val canGoBack: Boolean
+        get() = intent.getBooleanExtra(CAN_GO_BACK_EXTRA, false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_companies)
@@ -59,10 +62,9 @@ class CompaniesActivity : BaseActivity() {
     }
 
     private fun initToolbar() {
-        toolbar.title = getString(R.string.select_company_title)
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-        toolbar.setNavigationOnClickListener { finish() }
-        ElevationUtil.initScrollElevation(recycler_view, appbar_elevation_view)
+        setSupportActionBar(toolbar)
+        title = getString(R.string.select_company_title)
+        supportActionBar?.setDisplayHomeAsUpEnabled(canGoBack)
         initMenu()
     }
 
@@ -206,6 +208,14 @@ class CompaniesActivity : BaseActivity() {
             searchItem?.collapseActionView()
         } else {
             super.onBackPressed()
+        }
+    }
+
+    companion object {
+        private const val CAN_GO_BACK_EXTRA = "can_go_back"
+
+        fun getBundle(canGoBack: Boolean) = Bundle().apply {
+            putBoolean(CAN_GO_BACK_EXTRA, canGoBack)
         }
     }
 }
