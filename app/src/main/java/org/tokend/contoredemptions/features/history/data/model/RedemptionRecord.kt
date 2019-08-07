@@ -11,26 +11,26 @@ import java.util.*
  * Holds accepted redemption request data
  */
 class RedemptionRecord(
-    val sourceAccount: Account,
-    val company: Company,
-    val asset: Asset,
-    val amount: BigDecimal,
-    val date: Date,
-    val reference: Long,
-    val id: Long = LongUid.get()
+        val sourceAccount: Account,
+        val company: Company,
+        val asset: Asset,
+        val amount: BigDecimal,
+        val date: Date,
+        val reference: Long,
+        val id: Long = LongUid.get()
 ) : Serializable {
     data class Account(
-        val id: String,
-        val nickname: String?
+            val id: String,
+            val nickname: String?
     ) : Serializable
 
     data class Company(
-        val id: String,
-        val name: String
+            val id: String,
+            val name: String
     ) : Serializable {
         constructor(source: CompanyRecord) : this(
-            id = source.id,
-            name = source.name
+                id = source.id,
+                name = source.name
         )
     }
 

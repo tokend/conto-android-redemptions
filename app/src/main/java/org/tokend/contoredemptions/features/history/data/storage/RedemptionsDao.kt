@@ -9,11 +9,9 @@ import org.tokend.contoredemptions.features.history.data.model.RedemptionDbEntit
 @Dao
 interface RedemptionsDao {
     @Query("SELECT * FROM redemption WHERE company_id=:companyId AND uid<:cursor ORDER BY uid DESC LIMIT :count ")
-    fun getPageDesc(
-        companyId: String,
-        count: Int,
-        cursor: Long
-    ): List<RedemptionDbEntity>
+    fun getPageDesc(companyId: String,
+                    count: Int,
+                    cursor: Long): List<RedemptionDbEntity>
 
     @Insert(onConflict = OnConflictStrategy.FAIL)
     fun insert(vararg items: RedemptionDbEntity)
