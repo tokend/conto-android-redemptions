@@ -4,29 +4,32 @@ import androidx.room.*
 import org.tokend.contoredemptions.features.assets.data.model.Asset
 import org.tokend.contoredemptions.features.assets.data.model.SimpleAsset
 import org.tokend.sdk.factory.GsonFactory
-import org.tokend.sdk.utils.BigDecimalUtil
 import java.math.BigDecimal
 import java.util.*
 
-@Entity(tableName = "redemption")
+@Entity(
+        tableName = "redemption",
+        indices = [
+            Index("company_id"),
+            Index("reference", unique = true)
+        ]
+)
 @TypeConverters(RedemptionDbEntity.Converters::class)
 data class RedemptionDbEntity(
         @PrimaryKey
         @ColumnInfo(name = "uid")
         val uid: Long,
-        @Embedded
+        @Embedded(prefix = "account_")
         val sourceAccount: RedemptionRecord.Account,
-        @ColumnInfo(name = "company_id", index = true)
-        val companyId: String,
-        @ColumnInfo(name = "company_name")
-        val companyName: String,
+        @Embedded(prefix = "company_")
+        val company: RedemptionRecord.Company,
         @ColumnInfo(name = "amount")
         val amount: BigDecimal,
         @ColumnInfo(name = "asset")
         val asset: Asset,
         @ColumnInfo(name = "date")
         val date: Date,
-        @ColumnInfo(name = "reference", index = true)
+        @ColumnInfo(name = "reference")
         val reference: Long
 ) {
     class Converters {
@@ -41,35 +44,12 @@ data class RedemptionDbEntity(
         fun assetToJson(value: Asset?): String? {
             return value?.let { gson.toJson(it) }
         }
-
-        @TypeConverter
-        fun dateToUnix(value: Date?): Long? {
-            return value?.let { it.time / 1000 }
-        }
-
-        @TypeConverter
-        fun dateFromUnix(value: Long?): Date? {
-            return value?.let { Date(it * 1000) }
-        }
-
-        @TypeConverter
-        fun bigDecimalToString(value: BigDecimal?): String? {
-            return value?.let { BigDecimalUtil.toPlainString(it) }
-        }
-
-        @TypeConverter
-        fun stringToBigDecimal(value: String?): BigDecimal? {
-            return value?.let { BigDecimalUtil.valueOf(it) }
-        }
     }
 
     fun toRecord(): RedemptionRecord {
         return RedemptionRecord(
                 sourceAccount = sourceAccount,
-                company = RedemptionRecord.Company(
-                        companyId,
-                        companyName
-                ),
+                company = company,
                 amount = amount,
                 asset = asset,
                 reference = reference,
@@ -83,12 +63,11 @@ data class RedemptionDbEntity(
             return RedemptionDbEntity(
                     uid = record.id,
                     sourceAccount = record.sourceAccount,
+                    company = record.company,
                     date = record.date,
                     reference = record.reference,
                     asset = record.asset,
-                    amount = record.amount,
-                    companyId = record.company.id,
-                    companyName = record.company.name
+                    amount = record.amount
             )
         }
     }

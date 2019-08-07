@@ -15,7 +15,7 @@ interface RedemptionsDao {
         cursor: Long
     ): List<RedemptionDbEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.FAIL)
     fun insert(vararg items: RedemptionDbEntity)
 
     @Query("SELECT COUNT(*) FROM redemption WHERE reference=:reference")
