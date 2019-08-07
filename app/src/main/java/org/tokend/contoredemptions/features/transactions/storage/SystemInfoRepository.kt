@@ -1,4 +1,4 @@
-package org.tokend.contoredemptions
+package org.tokend.contoredemptions.features.transactions.storage
 
 import io.reactivex.Observable
 import io.reactivex.Single

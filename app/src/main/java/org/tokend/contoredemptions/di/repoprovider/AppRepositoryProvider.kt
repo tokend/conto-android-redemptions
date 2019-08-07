@@ -1,7 +1,7 @@
 package org.tokend.contoredemptions.di.repoprovider
 
 import androidx.collection.LruCache
-import org.tokend.contoredemptions.SystemInfoRepository
+import org.tokend.contoredemptions.features.transactions.storage.SystemInfoRepository
 import org.tokend.contoredemptions.base.data.repository.MemoryOnlyRepositoryCache
 import org.tokend.contoredemptions.db.AppDatabase
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider

@@ -20,7 +20,7 @@ import org.tokend.contoredemptions.base.view.BaseActivity
 import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
 import org.tokend.contoredemptions.features.redemption.logic.ConfirmRedemptionRequestUseCase
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
-import org.tokend.contoredemptions.logic.TxManager
+import org.tokend.contoredemptions.features.transactions.logic.TxManager
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.MainDataView
 import org.tokend.contoredemptions.view.details.DetailsItem
@@ -115,7 +115,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
                 companyProvider,
                 repositoryProvider,
                 apiProvider,
-                TxManager(apiProvider)
+            TxManager(apiProvider)
         )
                 .perform()
                 .compose(ObservableTransformers.defaultSchedulersCompletable())

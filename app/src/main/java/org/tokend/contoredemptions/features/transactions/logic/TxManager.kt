@@ -1,4 +1,4 @@
-package org.tokend.contoredemptions.logic
+package org.tokend.contoredemptions.features.transactions.logic
 
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers

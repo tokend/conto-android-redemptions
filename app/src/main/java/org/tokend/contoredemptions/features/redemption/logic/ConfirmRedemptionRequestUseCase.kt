@@ -4,13 +4,11 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toMaybe
 import io.reactivex.schedulers.Schedulers
-import org.tokend.SimpleFeeRecord
-import org.tokend.contoredemptions.PaymentFee
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.companyprovider.CompanyProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
-import org.tokend.contoredemptions.logic.TxManager
+import org.tokend.contoredemptions.features.transactions.logic.TxManager
 import org.tokend.rx.extensions.toSingle
 import org.tokend.sdk.api.general.model.SystemInfo
 import org.tokend.sdk.api.transactions.model.SubmitTransactionResponse
@@ -18,12 +16,10 @@ import org.tokend.sdk.api.v3.accounts.params.AccountParamsV3
 import org.tokend.wallet.NetworkParams
 import org.tokend.wallet.Transaction
 import org.tokend.wallet.TransactionBuilder
+import org.tokend.wallet.xdr.Fee
 import org.tokend.wallet.xdr.Operation
 import org.tokend.wallet.xdr.PaymentFeeData
 import org.tokend.wallet.xdr.op_extensions.SimplePaymentOp
-import java.lang.Exception
-import java.lang.IllegalStateException
-import java.math.BigDecimal
 
 class ConfirmRedemptionRequestUseCase(
     private val request: RedemptionRequest,
@@ -87,9 +83,10 @@ class ConfirmRedemptionRequestUseCase(
         val signedApi = apiProvider.getApi()
 
         return signedApi.v3.accounts
-            .getById(request.sourceAccountId, AccountParamsV3(
-                listOf(AccountParamsV3.Includes.BALANCES)
-            )
+            .getById(
+                request.sourceAccountId, AccountParamsV3(
+                    listOf(AccountParamsV3.Includes.BALANCES)
+                )
             )
             .map { it.balances }
             .toSingle()
@@ -101,14 +98,14 @@ class ConfirmRedemptionRequestUseCase(
             .switchIfEmpty(
                 Single.error(
                     IllegalStateException("No balance ID found for ${request.assetCode}")
-                ))
+                )
+            )
     }
 
     private fun getTransaction(): Single<Transaction> {
         val accountId = companyProvider.getCompany().id
 
-        val zeroFee = SimpleFeeRecord(BigDecimal.ZERO, BigDecimal.ZERO)
-        val fee = PaymentFee(zeroFee, zeroFee)
+        val zeroFee = Fee(0, 0, Fee.FeeExt.EmptyVersion())
 
         return Single.defer {
             val operation = SimplePaymentOp(
@@ -118,8 +115,8 @@ class ConfirmRedemptionRequestUseCase(
                 subject = "",
                 reference = request.salt.toString(),
                 feeData = PaymentFeeData(
-                    sourceFee = fee.senderFee.toXdrFee(networkParams),
-                    destinationFee = fee.recipientFee.toXdrFee(networkParams),
+                    sourceFee = zeroFee,
+                    destinationFee = zeroFee,
                     sourcePaysForDest = false,
                     ext = PaymentFeeData.PaymentFeeDataExt.EmptyVersion()
                 )
