@@ -1,8 +1,10 @@
 package org.tokend.contoredemptions.features.history.data.service
 
+import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.doAsync
 import org.tokend.contoredemptions.features.history.data.model.RedemptionDbEntity
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.history.data.storage.RedemptionsDao
@@ -37,6 +39,7 @@ class RedemptionsDbService(
     override fun add(redemptionRecord: RedemptionRecord): Completable {
         return Completable.defer {
             dao.insert(RedemptionDbEntity.fromRecord(redemptionRecord))
+            cleanupIfNeeded()
             Completable.complete()
         }.subscribeOn(Schedulers.io())
     }
@@ -48,7 +51,21 @@ class RedemptionsDbService(
         }.subscribeOn(Schedulers.io())
     }
 
+    private fun cleanupIfNeeded() {
+        doAsync {
+            val count = dao.count()
+            if (count >= CLEANUP_THRESHOLD + CLEANUP_DELETE_COUNT) {
+                val idOnThreshold = dao.getOldestId(CLEANUP_THRESHOLD - 1)
+                Log.i(LOG_TAG, "Cleanup is needed, delete older than $idOnThreshold")
+                dao.deleteOlderThan(idOnThreshold)
+            }
+        }
+    }
+
     private companion object {
+        private const val LOG_TAG = "RedmptDbSvc"
         private const val DEFAULT_LIMIT = 40
+        private const val CLEANUP_THRESHOLD = 150
+        private const val CLEANUP_DELETE_COUNT = 50
     }
 }
