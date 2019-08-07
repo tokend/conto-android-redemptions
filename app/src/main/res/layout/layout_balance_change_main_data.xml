@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/asset_name_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="@dimen/half_standard_padding"
+        android:textSize="16sp"
+        tools:text="United States Dollar" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/half_standard_margin">
+
+        <TextView
+            android:id="@+id/operation_name_text_view"
+            style="@style/StrokedBadgeText"
+            android:layout_width="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:paddingStart="@dimen/standard_padding"
+            android:paddingEnd="@dimen/standard_padding"
+            tools:text="Redemption" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/operation_name_text_view"
+            android:background="@color/divider"
+            android:visibility="visible"
+            android:layout_toStartOf="@id/operation_name_text_view"
+            android:layout_alignParentStart="true" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/operation_name_text_view"
+            android:background="@color/divider"
+            android:visibility="visible"
+            android:layout_toEndOf="@id/operation_name_text_view"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/top_info_text_view"
+        style="@style/SecondaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_padding"
+        android:gravity="center"
+        tools:text="28 May 2019 12:59" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:gravity="center_horizontal|bottom"
+        android:orientation="horizontal">
+
+        <me.grantland.widget.AutofitTextView
+            android:id="@+id/amount_text_view"
+            style="@style/HeadingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:gravity="center"
+            android:textColor="@color/colorAccent"
+            android:maxLines="1"
+            tools:text="-101.4 USD" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/bottom_info_text_view"
+        style="@style/SecondaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/quarter_standard_margin"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:text="Fee: 12 USD" />
+</LinearLayout>

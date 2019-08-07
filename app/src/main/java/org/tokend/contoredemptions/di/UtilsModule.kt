@@ -7,8 +7,9 @@ import org.tokend.contoredemptions.util.errorhandler.DefaultErrorLogger
 import org.tokend.contoredemptions.util.errorhandler.ErrorHandlerFactory
 import org.tokend.contoredemptions.util.errorhandler.ErrorLogger
 import org.tokend.contoredemptions.util.formatter.AmountFormatter
-import org.tokend.contoredemptions.view.ToastManager
+import org.tokend.contoredemptions.util.formatter.DateFormatter
 import org.tokend.contoredemptions.util.formatter.DefaultAmountFormatter
+import org.tokend.contoredemptions.view.ToastManager
 import javax.inject.Singleton
 
 @Module
@@ -39,5 +40,11 @@ class UtilsModule(private val context: Context) {
     @Singleton
     fun errorLogger(): ErrorLogger {
         return DefaultErrorLogger()
+    }
+
+    @Provides
+    @Singleton
+    fun dateFormatter(context: Context): DateFormatter {
+        return DateFormatter(context)
     }
 }

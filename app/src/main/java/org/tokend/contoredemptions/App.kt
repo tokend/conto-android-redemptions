@@ -12,6 +12,7 @@ import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import okhttp3.CookieJar
 import org.tokend.contoredemptions.di.AppComponent
+import org.tokend.contoredemptions.di.AppDatabaseModule
 import org.tokend.contoredemptions.di.DaggerAppComponent
 import org.tokend.contoredemptions.di.UtilsModule
 import org.tokend.contoredemptions.di.apiprovider.ApiProviderModule
@@ -51,6 +52,9 @@ class App : MultiDexApplication() {
                 )
                 .apiProviderModule(
                         ApiProviderModule(CookieJar.NO_COOKIES)
+                )
+                .appDatabaseModule(
+                        AppDatabaseModule(DATABASE_NAME)
                 )
                 .build()
     }
@@ -100,7 +104,7 @@ class App : MultiDexApplication() {
                 .downloader(
                         OkHttp3Downloader(
                                 cacheDir,
-                                8L * 1024 * 1024
+                                IMAGE_CACHE_SIZE_MB * 1024L * 1024
                         )
                 )
                 .build()
@@ -111,5 +115,10 @@ class App : MultiDexApplication() {
         val googleApiAvailability = GoogleApiAvailability.getInstance()
         val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this)
         return resultCode == ConnectionResult.SUCCESS
+    }
+
+    private companion object {
+        private const val DATABASE_NAME = "data"
+        private const val IMAGE_CACHE_SIZE_MB = 8
     }
 }
