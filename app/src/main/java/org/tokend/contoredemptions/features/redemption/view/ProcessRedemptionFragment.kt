@@ -43,9 +43,11 @@ class ProcessRedemptionFragment : BaseFragment() {
             systemInfoRepository
                     .updateDeferred()
                     .compose(ObservableTransformers.defaultSchedulersCompletable())
-                    .retryWhen {
-                        Flowable.just(true)
-                                .delay(SYSTEM_INFO_LOADING_RETRY_INTERVAL_S, TimeUnit.SECONDS)
+                    .retryWhen { errors ->
+                        errors.flatMap {
+                            Flowable.just(true)
+                                    .delay(SYSTEM_INFO_LOADING_RETRY_INTERVAL_S, TimeUnit.SECONDS)
+                        }
                     }
                     .doOnSubscribe {
                         toLoading()
@@ -170,7 +172,7 @@ class ProcessRedemptionFragment : BaseFragment() {
     }
 
     private companion object {
-        private const val SYSTEM_INFO_LOADING_RETRY_INTERVAL_S = 1L
+        private const val SYSTEM_INFO_LOADING_RETRY_INTERVAL_S = 2L
         private val CONFIRM_REDEMPTION_REQUEST = "confirm_redemption".hashCode() and 0xfff
     }
 }
