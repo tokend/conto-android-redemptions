@@ -2,6 +2,7 @@ package org.tokend.contoredemptions.features.history.data.model
 
 import org.tokend.contoredemptions.features.assets.data.model.Asset
 import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
+import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.util.LongUid
 import java.io.Serializable
 import java.math.BigDecimal
@@ -33,6 +34,21 @@ class RedemptionRecord(
                 name = source.name
         )
     }
+
+    constructor(request: RedemptionRequest,
+                asset: Asset,
+                company: CompanyRecord,
+                accountNickname: String?) : this(
+            sourceAccount = Account(
+                    request.sourceAccountId,
+                    accountNickname
+            ),
+            company = Company(company),
+            asset = asset,
+            amount = request.amount,
+            date = Date(),
+            reference = request.salt
+    )
 
     override fun equals(other: Any?): Boolean {
         return other is RedemptionRecord && other.id == this.id

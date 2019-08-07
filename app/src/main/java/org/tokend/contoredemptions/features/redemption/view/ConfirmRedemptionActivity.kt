@@ -127,7 +127,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
         ConfirmRedemptionRequestUseCase(
                 request,
-                companyProvider,
+                companyProvider.getCompany(),
                 repositoryProvider,
                 apiProvider,
                 TxManager(apiProvider)
