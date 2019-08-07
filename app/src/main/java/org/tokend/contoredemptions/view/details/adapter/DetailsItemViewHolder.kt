@@ -36,8 +36,8 @@ class DetailsItemViewHolder(view: View) : BaseViewHolder<DetailsItem>(view) {
         }
 
         hintTextView.setTextSize(
-            TypedValue.COMPLEX_UNIT_PX,
-            view.context.resources.getDimensionPixelSize(R.dimen.text_size_hint).toFloat()
+                TypedValue.COMPLEX_UNIT_PX,
+                view.context.resources.getDimensionPixelSize(R.dimen.text_size_hint).toFloat()
         )
 
         preferenceRoot.background = null
@@ -47,10 +47,10 @@ class DetailsItemViewHolder(view: View) : BaseViewHolder<DetailsItem>(view) {
         get() = dividerView.visibility == View.VISIBLE
         set(value) {
             dividerView.visibility =
-                if (value)
-                    View.VISIBLE
-                else
-                    View.GONE
+                    if (value)
+                        View.VISIBLE
+                    else
+                        View.GONE
         }
 
     override fun bind(item: DetailsItem) {
@@ -66,10 +66,10 @@ class DetailsItemViewHolder(view: View) : BaseViewHolder<DetailsItem>(view) {
         mainTextView.text = item.text
 
         mainTextView.textColor =
-            if (item.isEnabled)
-                item.textColor ?: defaultTextColor
-            else
-                disabledTextColor
+                if (item.isEnabled)
+                    item.textColor ?: defaultTextColor
+                else
+                    disabledTextColor
 
         if (item.hint != null) {
             hintTextView.visibility = View.VISIBLE

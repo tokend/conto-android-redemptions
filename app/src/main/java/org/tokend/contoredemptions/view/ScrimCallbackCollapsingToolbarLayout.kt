@@ -9,7 +9,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
  */
 class ScrimCallbackCollapsingToolbarLayout
 @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : CollapsingToolbarLayout(context, attrs, defStyleAttr) {
 
     /**

@@ -1,6 +1,7 @@
 package org.tokend.contoredemptions.view.util
 
 import androidx.fragment.app.Fragment
+import org.tokend.contoredemptions.features.history.view.RedemptionsFragment
 import org.tokend.contoredemptions.features.redemption.view.ScanRedemptionFragment
 
 class FragmentFactory {
@@ -10,6 +11,6 @@ class FragmentFactory {
     }
 
     fun getHistoryFragment(): Fragment {
-        return Fragment()
+        return RedemptionsFragment()
     }
 }

@@ -27,13 +27,12 @@
     <dimen name="default_card_elevation">2dp</dimen>
 
     <dimen name="max_content_width">640dp</dimen>
+    <dimen name="max_balance_change_details_content_width">368dp</dimen>
 
     <dimen name="list_item_logo_size">56dp</dimen>
 
-    <dimen name="impressive_card_elevation">6dp</dimen>
-
-    <dimen name="max_balance_change_details_content_width">368dp</dimen>
-
     <dimen name="badge_text_height">22sp</dimen>
     <dimen name="badge_text_corner_radius">11sp</dimen>
+
+    <dimen name="impressive_card_elevation">6dp</dimen>
 </resources>

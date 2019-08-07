@@ -15,6 +15,7 @@ import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
 import org.tokend.contoredemptions.util.errorhandler.ErrorHandlerFactory
 import org.tokend.contoredemptions.util.formatter.AmountFormatter
+import org.tokend.contoredemptions.util.formatter.DateFormatter
 import org.tokend.contoredemptions.view.ToastManager
 import javax.inject.Inject
 
@@ -33,6 +34,8 @@ abstract class BaseActivity : AppCompatActivity() {
     lateinit var companyProvider: CompanyProvider
     @Inject
     lateinit var apiProvider: ApiProvider
+    @Inject
+    lateinit var dateFormatter: DateFormatter
 
     /**
      * Disposable holder which will be disposed on activity destroy

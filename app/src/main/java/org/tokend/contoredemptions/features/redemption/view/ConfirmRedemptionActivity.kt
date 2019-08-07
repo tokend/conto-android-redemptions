@@ -1,7 +1,6 @@
 package org.tokend.contoredemptions.features.redemption.view
 
 import android.app.Activity
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -13,16 +12,12 @@ import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_confirm_redemption.*
 import kotlinx.android.synthetic.main.appbar.*
 import kotlinx.android.synthetic.main.include_appbar_elevation.*
-import kotlinx.android.synthetic.main.layout_main_data.*
+import kotlinx.android.synthetic.main.layout_balance_change_main_data.*
 import kotlinx.android.synthetic.main.toolbar.*
-import org.jetbrains.anko.enabled
 import org.jetbrains.anko.onClick
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
-import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
-import org.tokend.contoredemptions.features.assets.data.model.SimpleAsset
-import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 import org.tokend.contoredemptions.features.redemption.logic.ConfirmRedemptionRequestUseCase
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.logic.TxManager
@@ -33,7 +28,6 @@ import org.tokend.contoredemptions.view.details.adapter.DetailsItemsAdapter
 import org.tokend.contoredemptions.view.util.ElevationUtil
 import org.tokend.contoredemptions.view.util.ProgressDialogFactory
 import org.tokend.sdk.utils.extentions.decodeBase64
-import java.math.BigDecimal
 
 class ConfirmRedemptionActivity : BaseActivity() {
 
@@ -54,9 +48,9 @@ class ConfirmRedemptionActivity : BaseActivity() {
         val requestString = intent.getStringExtra(EXTRA_REDEMPTION)
         if (requestString == null) {
             errorHandler.handle(
-                IllegalArgumentException(
-                    "No $EXTRA_REDEMPTION specified"
-                )
+                    IllegalArgumentException(
+                            "No $EXTRA_REDEMPTION specified"
+                    )
             )
             finish()
             return
@@ -64,10 +58,10 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
         try {
             val networkParams = repositoryProvider
-                .systemInfo()
-                .item
-                ?.toNetworkParams()
-                ?: throw IllegalArgumentException("No loaded network params found")
+                    .systemInfo()
+                    .item
+                    ?.toNetworkParams()
+                    ?: throw IllegalArgumentException("No loaded network params found")
 
             request = RedemptionRequest.fromSerialized(networkParams, requestString.decodeBase64())
         } catch (e: Exception) {
@@ -117,21 +111,21 @@ class ConfirmRedemptionActivity : BaseActivity() {
         val dialog = ProgressDialogFactory.getDialog(this)
 
         ConfirmRedemptionRequestUseCase(
-            request,
-            companyProvider,
-            repositoryProvider,
-            apiProvider,
-            TxManager(apiProvider)
+                request,
+                companyProvider,
+                repositoryProvider,
+                apiProvider,
+                TxManager(apiProvider)
         )
-            .perform()
-            .compose(ObservableTransformers.defaultSchedulersCompletable())
-            .doOnSubscribe { dialog.show() }
-            .doOnTerminate { dialog.dismiss() }
-            .subscribeBy(
-                onComplete = this::onRedemptionConfirmed,
-                onError = this::onRedemptionConfirmationError
-            )
-            .addTo(compositeDisposable)
+                .perform()
+                .compose(ObservableTransformers.defaultSchedulersCompletable())
+                .doOnSubscribe { dialog.show() }
+                .doOnTerminate { dialog.dismiss() }
+                .subscribeBy(
+                        onComplete = this::onRedemptionConfirmed,
+                        onError = this::onRedemptionConfirmationError
+                )
+                .addTo(compositeDisposable)
     }
 
     private fun onRedemptionConfirmed() {
@@ -161,11 +155,11 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
     private fun displayRecipient() {
         adapter.addData(
-            DetailsItem(
-                text = companyProvider.getCompany().name,
-                hint = getString(R.string.tx_recipient),
-                icon = ContextCompat.getDrawable(this, R.drawable.ic_briefcase)
-            )
+                DetailsItem(
+                        text = companyProvider.getCompany().name,
+                        hint = getString(R.string.tx_recipient),
+                        icon = ContextCompat.getDrawable(this, R.drawable.ic_briefcase)
+                )
         )
     }
 

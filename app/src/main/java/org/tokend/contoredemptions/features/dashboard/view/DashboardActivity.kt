@@ -5,10 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.ImageView
 import androidx.appcompat.widget.Toolbar
+import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -17,8 +16,10 @@ import kotlinx.android.synthetic.main.toolbar.*
 import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
+import org.tokend.contoredemptions.features.history.view.RedemptionsFragment
 import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.view.util.FragmentFactory
+import org.tokend.contoredemptions.view.util.LogoUtil
 
 class DashboardActivity : BaseActivity() {
 
@@ -42,7 +43,7 @@ class DashboardActivity : BaseActivity() {
                             Toolbar.LayoutParams.WRAP_CONTENT,
                             dip(24)
                     ).apply {
-                        gravity = Gravity.CENTER
+                        gravity = Gravity.START or Gravity.CENTER_VERTICAL
                     }
 
                     setImageDrawable(
@@ -51,9 +52,35 @@ class DashboardActivity : BaseActivity() {
                                     R.mipmap.product_logo)
                     )
 
-                    scaleType = ImageView.ScaleType.CENTER_INSIDE
+                    scaleType = ImageView.ScaleType.FIT_START
                 }
         )
+
+        toolbar.addView(
+                ImageView(this).apply {
+                    val size = dip(32)
+
+                    layoutParams = Toolbar.LayoutParams(size, size).apply {
+                        gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                        setMargins(0, 0,
+                                context.resources.getDimensionPixelSize(R.dimen.standard_margin), 0)
+                    }
+
+                    scaleType = ImageView.ScaleType.CENTER_INSIDE
+
+                    val c = companyProvider.getCompany()
+                    LogoUtil.setLogo(this, c.name, c.logoUrl, size)
+
+                    TooltipCompat.setTooltipText(this, getString(R.string.select_company_title))
+
+                    setOnClickListener {
+                        Navigator.from(this@DashboardActivity)
+                                .openCompanies(COMPANY_SELECTION_REQUEST)
+                    }
+                }
+        )
+
+        toolbar.navigationIcon = null
     }
 
     private fun initTabs() {
@@ -66,7 +93,6 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun displayFragment(id: Int) {
-        // TODO: Use real fragments
         when (id) {
             R.id.scan -> displayFragment(fragmentFactory.getScanRedemptionFragment())
             R.id.history -> displayFragment(fragmentFactory.getHistoryFragment())
@@ -80,18 +106,6 @@ class DashboardActivity : BaseActivity() {
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.fragment_container, fragment)
                 .commit()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.dashboard, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            R.id.companies -> Navigator.from(this).openCompanies(COMPANY_SELECTION_REQUEST)
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
