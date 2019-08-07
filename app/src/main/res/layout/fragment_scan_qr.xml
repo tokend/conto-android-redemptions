@@ -46,7 +46,7 @@
             android:textColor="@color/error"
             app:layout_constraintTop_toBottomOf="@id/qr_scanner_card"
             tools:text="Error"
-            android:layout_marginTop="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/half_standard_margin"
             android:gravity="center"
             android:visibility="invisible"
             tools:visibility="visible"
@@ -63,35 +63,5 @@
             android:padding="@dimen/quarter_standard_margin"
             android:layout_marginTop="@dimen/double_margin"
             app:layout_constraintTop_toBottomOf="@id/qr_scanner_card"/>
-
-    <LinearLayout
-            android:id="@+id/permission_required_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@color/background"
-            android:visibility="gone">
-
-        <TextView
-                android:id="@+id/permission_required_text_view"
-                style="@style/SecondaryText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/camera_permission_required_hint"
-                android:textSize="@dimen/text_size_lead"
-                android:layout_marginBottom="@dimen/double_margin"
-                app:layout_constraintBottom_toTopOf="@id/qr_scanner_card"/>
-
-        <Button
-                android:id="@+id/permission_request_button"
-                style="@style/SecondaryButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/text_size_dialog"
-                android:text="@string/open_scanner_action"/>
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

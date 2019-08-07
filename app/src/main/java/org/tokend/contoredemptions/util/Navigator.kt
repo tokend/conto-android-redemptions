@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 import org.tokend.contoredemptions.R
+import org.tokend.contoredemptions.features.assets.data.model.Asset
 import org.tokend.contoredemptions.features.companies.view.CompaniesActivity
 import org.tokend.contoredemptions.features.dashboard.view.DashboardActivity
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
@@ -117,9 +118,11 @@ class Navigator private constructor() {
                 ?.also { performIntent(it, requestCode = requestCode) }
     }
 
-    fun openAcceptRedemption(redemptionRequest: String, requestCode: Int = 0) {
+    fun openAcceptRedemption(redemptionRequest: String,
+                             asset: Asset,
+                             requestCode: Int = 0) {
         context?.intentFor<ConfirmRedemptionActivity>()
-                ?.putExtras(ConfirmRedemptionActivity.getBundle(redemptionRequest))
+                ?.putExtras(ConfirmRedemptionActivity.getBundle(redemptionRequest, asset))
                 ?.also { performIntent(it, requestCode = requestCode) }
     }
 

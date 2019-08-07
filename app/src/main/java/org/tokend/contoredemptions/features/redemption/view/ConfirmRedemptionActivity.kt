@@ -17,12 +17,14 @@ import kotlinx.android.synthetic.main.toolbar.*
 import org.jetbrains.anko.onClick
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
-import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
+import org.tokend.contoredemptions.features.assets.data.model.Asset
 import org.tokend.contoredemptions.features.redemption.logic.ConfirmRedemptionRequestUseCase
+import org.tokend.contoredemptions.features.redemption.logic.RedemptionAlreadyProcessedException
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.features.transactions.logic.TxManager
 import org.tokend.contoredemptions.util.ObservableTransformers
-import org.tokend.contoredemptions.view.MainDataView
+import org.tokend.contoredemptions.util.formatter.AccountIdFormatter
+import org.tokend.contoredemptions.view.balancechange.BalanceChangeMainDataView
 import org.tokend.contoredemptions.view.details.DetailsItem
 import org.tokend.contoredemptions.view.details.adapter.DetailsItemsAdapter
 import org.tokend.contoredemptions.view.util.ElevationUtil
@@ -30,14 +32,14 @@ import org.tokend.contoredemptions.view.util.ProgressDialogFactory
 import org.tokend.sdk.utils.extentions.decodeBase64
 
 class ConfirmRedemptionActivity : BaseActivity() {
-
-    //TODO: get from assets repository
-    private val asset: AssetRecord? = null
+    private var emailLoadingFinished: Boolean = false
+    private var senderEmail: String? = null
 
     private lateinit var request: RedemptionRequest
+    private lateinit var asset: Asset
 
     private val adapter = DetailsItemsAdapter()
-    private lateinit var mainDataView: MainDataView
+    private lateinit var mainDataView: BalanceChangeMainDataView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +58,18 @@ class ConfirmRedemptionActivity : BaseActivity() {
             return
         }
 
+        val asset = intent.getSerializableExtra(EXTRA_ASSET) as? Asset
+        if (asset == null) {
+            errorHandler.handle(
+                    IllegalArgumentException(
+                            "No $EXTRA_ASSET specified"
+                    )
+            )
+            finish()
+            return
+        }
+        this.asset = asset
+
         try {
             val networkParams = repositoryProvider
                     .systemInfo()
@@ -72,6 +86,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
         initViews()
         displayDetails()
+        loadAndDisplayRequestorEmail()
     }
 
     private fun initViews() {
@@ -93,7 +108,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
             it.topMargin = 0
             top_info_text_view.layoutParams = it
         }
-        mainDataView = MainDataView(appbar, amountFormatter)
+        mainDataView = BalanceChangeMainDataView(appbar, amountFormatter, dateFormatter)
     }
 
     private fun initDetailsList() {
@@ -115,7 +130,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
                 companyProvider,
                 repositoryProvider,
                 apiProvider,
-            TxManager(apiProvider)
+                TxManager(apiProvider)
         )
                 .perform()
                 .compose(ObservableTransformers.defaultSchedulersCompletable())
@@ -136,7 +151,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
     private fun onRedemptionConfirmationError(error: Throwable) {
         when (error) {
-            is ConfirmRedemptionRequestUseCase.RedemptionAlreadyProcessedException -> {
+            is RedemptionAlreadyProcessedException -> {
                 toastManager.long(R.string.error_redemption_request_no_more_valid)
                 setResult(Activity.RESULT_CANCELED)
                 finish()
@@ -146,28 +161,60 @@ class ConfirmRedemptionActivity : BaseActivity() {
     }
 
     private fun displayDetails() {
-        val asset = this.asset ?: return
         mainDataView.displayOperationName(getString(R.string.operation_redemption))
         mainDataView.displayAmount(request.amount, asset, true)
 
-        displayRecipient()
+        displayRequestor()
     }
 
-    private fun displayRecipient() {
-        adapter.addData(
+    private fun displayRequestor() {
+        adapter.addOrUpdateItem(
                 DetailsItem(
-                        text = companyProvider.getCompany().name,
-                        hint = getString(R.string.tx_recipient),
-                        icon = ContextCompat.getDrawable(this, R.drawable.ic_briefcase)
+                        id = REQUESTOR_ITEM_ID,
+                        text = if (!emailLoadingFinished)
+                            getString(R.string.loading_data)
+                        else
+                            senderEmail
+                                    ?: AccountIdFormatter().formatShort(request.sourceAccountId),
+                        hint = getString(R.string.redemption_account),
+                        icon = ContextCompat.getDrawable(this, R.drawable.ic_account),
+                        singleLineText = true
                 )
         )
     }
 
+    private fun loadAndDisplayRequestorEmail() {
+        repositoryProvider
+                .accountDetails()
+                .getEmailByAccountId(request.sourceAccountId)
+                .compose(ObservableTransformers.defaultSchedulersSingle())
+                .doOnEvent { _, _ ->
+                    emailLoadingFinished = true
+                }
+                .doOnSuccess { email ->
+                    senderEmail = email
+                }
+                .subscribeBy(
+                        onSuccess = {
+                            displayRequestor()
+                        },
+                        onError = {
+                            displayRequestor()
+                        }
+                )
+                .addTo(compositeDisposable)
+    }
+
     companion object {
         private const val EXTRA_REDEMPTION = "extra_redemption"
+        private const val EXTRA_ASSET = "extra_asset"
 
-        fun getBundle(redemptionRequest: String) = Bundle().apply {
+        private const val REQUESTOR_ITEM_ID = 1L
+
+        fun getBundle(redemptionRequest: String,
+                      asset: Asset) = Bundle().apply {
             putString(EXTRA_REDEMPTION, redemptionRequest)
+            putSerializable(EXTRA_ASSET, asset)
         }
     }
 }

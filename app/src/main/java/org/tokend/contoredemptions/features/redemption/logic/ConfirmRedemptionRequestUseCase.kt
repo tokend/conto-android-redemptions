@@ -28,7 +28,6 @@ class ConfirmRedemptionRequestUseCase(
     private val apiProvider: ApiProvider,
     private val txManager: TxManager
 ) {
-    class RedemptionAlreadyProcessedException : Exception()
 
     private lateinit var systemInfo: SystemInfo
     private lateinit var networkParams: NetworkParams
