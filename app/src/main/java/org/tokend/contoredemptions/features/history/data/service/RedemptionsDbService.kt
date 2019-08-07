@@ -22,7 +22,7 @@ class RedemptionsDbService(
             val cursor = pagingParams.cursor?.toLongOrNull() ?: Long.MAX_VALUE
 
             if (pagingParams.order == PagingOrder.ASC) {
-                return@defer Single.error(
+                return@defer Single.error<DataPage<RedemptionRecord>>(
                         NotImplementedError("${PagingOrder.ASC} order is not implemented")
                 )
             }
