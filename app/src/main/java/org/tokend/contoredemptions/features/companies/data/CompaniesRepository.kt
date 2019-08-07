@@ -15,38 +15,38 @@ import org.tokend.sdk.utils.extentions.isNotFound
 import retrofit2.HttpException
 
 class CompaniesRepository(
-    private val apiProvider: ApiProvider,
-    private val urlConfigProvider: UrlConfigProvider,
-    itemsCache: RepositoryCache<CompanyRecord>
+        private val apiProvider: ApiProvider,
+        private val urlConfigProvider: UrlConfigProvider,
+        itemsCache: RepositoryCache<CompanyRecord>
 ) : SimpleMultipleItemsRepository<CompanyRecord>(itemsCache) {
 
     override fun getItems(): Single<List<CompanyRecord>> {
 
         val loader = SimplePagedResourceLoader({ nextCursor ->
             apiProvider.getApi()
-                .integrations
-                .dns
-                .getBusinesses(
-                    PageQueryParams(
-                        PagingParamsV2(page = nextCursor),
-                        null
+                    .integrations
+                    .dns
+                    .getBusinesses(
+                            PageQueryParams(
+                                    PagingParamsV2(page = nextCursor),
+                                    null
+                            )
                     )
-                )
         })
 
         return loader
-            .loadAll()
-            .toSingle()
-            .map { companiesResources ->
-                companiesResources.map {
-                    CompanyRecord(it, urlConfigProvider.getConfig())
+                .loadAll()
+                .toSingle()
+                .map { companiesResources ->
+                    companiesResources.map {
+                        CompanyRecord(it, urlConfigProvider.getConfig())
+                    }
                 }
-            }
-            .onErrorReturn { error ->
-                if (error is HttpException && (error.isBadRequest() || error.isNotFound()))
-                    emptyList()
-                else
-                    throw error
-            }
+                .onErrorResumeNext { error ->
+                    if (error is HttpException && (error.isBadRequest() || error.isNotFound()))
+                        Single.just(emptyList())
+                    else
+                        Single.error(error)
+                }
     }
 }
