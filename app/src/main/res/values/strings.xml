@@ -1,4 +1,5 @@
 <resources>
+    <string name="language_code">en</string>
     <string name="app_name">Conto Redemptions</string>
     <string name="error_try_again">An error occurred. Try again later</string>
     <string name="error_connection_try_again">Connection error. Try again later</string>
@@ -54,5 +55,4 @@
         <item>November</item>
         <item>December</item>
     </string-array>
->>>>>>> master
 </resources>

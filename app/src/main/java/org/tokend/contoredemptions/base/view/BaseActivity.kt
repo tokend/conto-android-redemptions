@@ -1,5 +1,6 @@
 package org.tokend.contoredemptions.base.view
 
+import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +17,7 @@ import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
 import org.tokend.contoredemptions.util.errorhandler.ErrorHandlerFactory
 import org.tokend.contoredemptions.util.formatter.AmountFormatter
 import org.tokend.contoredemptions.util.formatter.DateFormatter
+import org.tokend.contoredemptions.util.locale.AppLocaleManager
 import org.tokend.contoredemptions.view.ToastManager
 import javax.inject.Inject
 
@@ -62,5 +64,9 @@ abstract class BaseActivity : AppCompatActivity() {
             onBackPressed()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(App.localeManager.getLocalizeContext(newBase))
     }
 }

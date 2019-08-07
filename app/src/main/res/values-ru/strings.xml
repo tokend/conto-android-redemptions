@@ -1,0 +1,59 @@
+<resources>
+    <string name="language_code">ru</string>
+    <string name="app_name">Conto Redemptions</string>
+    <string name="error_try_again">Возникла ошибка. Попробуйте позже</string>
+    <string name="error_connection_try_again">Ошибка соединения. Попробуйте позже</string>
+    <string name="error_insufficient_balance">Недостаточно средств</string>
+    <string name="error_payment_amount_less_than_fee">Комиссия получателя превышает сумму платежа</string>
+    <string name="error_unauthorized">Сессия закончилась</string>
+    <string name="error_tx_general">Транзакция отклонена. Попробуйте позже</string>
+    <string name="error_tx_bad_auth">Неправильная подпись транзакции</string>
+    <string name="error_tx_limits">Транзакция превышает один из ваших лимитов</string>
+    <string name="error_tx_insufficient_balance">@string/error_insufficient_balance</string>
+    <string name="error_tx_invalid_amount">Некорректная сумма в транзакции</string>
+    <string name="error_tx_malformed">Некорректная транзакция</string>
+    <string name="error_tx_account_blocked">Ваш аккаунт заблокирован</string>
+    <string name="error_tx_invalid_fee">Неправильная комиссия в транзакции</string>
+    <string name="error_tx_not_allowed">Вам не разрешено это действие</string>
+    <string name="error_tx_cross_self">Ордер совпадает с одним из уже существующих</string>
+    <string name="error_tx_not_found">Элемент не найден</string>
+    <string name="error_tx_kyc_required_to_own_asset">Только верифицированные пользователи могут
+        владеть этим активом</string>
+    <string name="retry">Повторить</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="search">Поиск</string>
+    <string name="error_no_companies">Компании не найдены</string>
+    <string name="select_company_title">Выберите компанию</string>
+    <string name="scan">Сканнер</string>
+    <string name="redemptions_history">История</string>
+    <string name="enable_flash_action">Отключить вспышку</string>
+    <string name="disable_flash_action">Включить вспышку</string>
+    <string name="redemption_scan_title">Отсканируйте QR код запроса на погашение</string>
+    <string name="camera_permission_required_hint">Требуется разрешение на доступ к камере</string>
+    <string name="open_permission_settings">Открыть настройки</string>
+    <string name="template_error_redemption_not_own_asset">\"%1$s\" не принадлежит вашей компании</string>
+    <string name="processing_progress">Обработка…</string>
+    <string name="operation_redemption">Погашение</string>
+    <string name="successfully_accepted_redemption">Погашение принято</string>
+    <string name="error_invalid_redemption_request">Некорректный запрос на погашение</string>
+    <string name="error_redemption_request_no_more_valid">Погашение уже выполнено, запрос недействителен</string>
+    <string name="template_balance_change_by_account">От %1$s</string>
+    <string name="no_redemptions_yet">История пуста</string>
+    <string name="redemption_account">Аккаунт</string>
+    <string name="redemption_company">Компания</string>
+    <string name="loading_data">Загрузка…</string>
+    <string-array name="months">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+</resources>

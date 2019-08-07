@@ -17,6 +17,7 @@ import javax.inject.Singleton
         RepositoryProviderModule::class,
         CompanyProviderModule::class,
         AppDatabaseModule::class,
+        LocaleManagerModule::class,
         UtilsModule::class
     ]
 )

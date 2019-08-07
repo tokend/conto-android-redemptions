@@ -1,5 +1,7 @@
 package org.tokend.contoredemptions
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
@@ -11,13 +13,11 @@ import com.squareup.picasso.Picasso
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import okhttp3.CookieJar
-import org.tokend.contoredemptions.di.AppComponent
-import org.tokend.contoredemptions.di.AppDatabaseModule
-import org.tokend.contoredemptions.di.DaggerAppComponent
-import org.tokend.contoredemptions.di.UtilsModule
+import org.tokend.contoredemptions.di.*
 import org.tokend.contoredemptions.di.apiprovider.ApiProviderModule
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProviderModule
 import org.tokend.contoredemptions.util.UrlConfig
+import org.tokend.contoredemptions.util.locale.AppLocaleManager
 import java.io.IOException
 import java.net.SocketException
 
@@ -29,17 +29,23 @@ class App : MultiDexApplication() {
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
+        initLocale()
         initDi()
         initTls()
         initRxErrorHandler()
         initPicasso()
     }
 
+    private fun initLocale() {
+        mLocaleManager = AppLocaleManager(this, getAppPreferences())
+        localeManager.initLocale()
+    }
+
     private fun initDi() {
         appComponent = DaggerAppComponent
                 .builder()
                 .utilsModule(
-                        UtilsModule(this)
+                        UtilsModule(localeManager.getLocalizeContext(this))
                 )
                 .urlConfigProviderModule(
                         UrlConfigProviderModule(
@@ -56,6 +62,7 @@ class App : MultiDexApplication() {
                 .appDatabaseModule(
                         AppDatabaseModule(DATABASE_NAME)
                 )
+                .localeManagerModule(LocaleManagerModule(localeManager))
                 .build()
     }
 
@@ -117,8 +124,16 @@ class App : MultiDexApplication() {
         return resultCode == ConnectionResult.SUCCESS
     }
 
-    private companion object {
+    private fun getAppPreferences(): SharedPreferences {
+        return getSharedPreferences("App", Context.MODE_PRIVATE)
+    }
+
+    companion object {
         private const val DATABASE_NAME = "data"
         private const val IMAGE_CACHE_SIZE_MB = 8
+
+        private lateinit var mLocaleManager: AppLocaleManager
+        val localeManager: AppLocaleManager
+            get() = mLocaleManager
     }
 }
