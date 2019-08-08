@@ -27,8 +27,8 @@ import org.tokend.contoredemptions.view.util.*
 class CompaniesActivity : BaseActivity() {
 
     private val loadingIndicator = LoadingIndicatorManager(
-            showLoading = { swipe_refresh.isRefreshing = true },
-            hideLoading = { swipe_refresh.isRefreshing = false }
+        showLoading = { swipe_refresh.isRefreshing = true },
+        hideLoading = { swipe_refresh.isRefreshing = false }
     )
 
     private val companiesRepository: CompaniesRepository
@@ -50,9 +50,19 @@ class CompaniesActivity : BaseActivity() {
     private val canGoBack: Boolean
         get() = intent.getBooleanExtra(CAN_GO_BACK_EXTRA, false)
 
+    private val forceCompanyLoad: Boolean
+        get() = intent.getBooleanExtra(FORCE_COMPANY_LOAD_EXTRA, true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_companies)
+
+        if (forceCompanyLoad) {
+            companyProvider.lastCompany?.let {
+                onCompanySelected(it)
+                return
+            }
+        }
 
         initToolbar()
         initSwipeRefresh()
@@ -91,7 +101,7 @@ class CompaniesActivity : BaseActivity() {
         }
 
         companiesAdapter.registerAdapterDataObserver(
-                ScrollOnTopItemUpdateAdapterObserver(recycler_view)
+            ScrollOnTopItemUpdateAdapterObserver(recycler_view)
         )
 
         ElevationUtil.initScrollElevation(recycler_view, appbar_elevation_view)
@@ -103,31 +113,31 @@ class CompaniesActivity : BaseActivity() {
         companiesDisposable?.dispose()
 
         companiesRepository.itemsSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe {
-                    displayCompanies()
-                }
-                .addTo(compositeDisposable)
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe {
+                displayCompanies()
+            }
+            .addTo(compositeDisposable)
 
         companiesRepository.loadingSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe {
-                    loadingIndicator.setLoading(it, "companies")
-                }
-                .addTo(compositeDisposable)
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe {
+                loadingIndicator.setLoading(it, "companies")
+            }
+            .addTo(compositeDisposable)
 
         companiesRepository.errorsSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { error ->
-                    if (!companiesAdapter.hasData) {
-                        error_empty_view.showError(error, errorHandlerFactory.getDefault()) {
-                            update(true)
-                        }
-                    } else {
-                        errorHandlerFactory.getDefault().handle(error)
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe { error ->
+                if (!companiesAdapter.hasData) {
+                    error_empty_view.showError(error, errorHandlerFactory.getDefault()) {
+                        update(true)
                     }
+                } else {
+                    errorHandlerFactory.getDefault().handle(error)
                 }
-                .addTo(compositeDisposable)
+            }
+            .addTo(compositeDisposable)
     }
 
     private fun onFilterChanged() {
@@ -136,21 +146,21 @@ class CompaniesActivity : BaseActivity() {
 
     private fun displayCompanies() {
         val items = companiesRepository.itemsList
-                .asSequence()
-                .map { company ->
-                    CompanyListItem(company)
-                }
-                .sortedWith(Comparator { o1, o2 ->
-                    return@Comparator o1.name.compareTo(o2.name, true)
-                })
-                .toList()
-                .let { items ->
-                    filter?.let {
-                        items.filter { item ->
-                            SearchUtil.isMatchGeneralCondition(it, item.name, item.industry)
-                        }
-                    } ?: items
-                }
+            .asSequence()
+            .map { company ->
+                CompanyListItem(company)
+            }
+            .sortedWith(Comparator { o1, o2 ->
+                return@Comparator o1.name.compareTo(o2.name, true)
+            })
+            .toList()
+            .let { items ->
+                filter?.let {
+                    items.filter { item ->
+                        SearchUtil.isMatchGeneralCondition(it, item.name, item.industry)
+                    }
+                } ?: items
+            }
 
         companiesAdapter.setData(items)
     }
@@ -214,9 +224,11 @@ class CompaniesActivity : BaseActivity() {
 
     companion object {
         private const val CAN_GO_BACK_EXTRA = "can_go_back"
+        private const val FORCE_COMPANY_LOAD_EXTRA = "force_company_open"
 
-        fun getBundle(canGoBack: Boolean) = Bundle().apply {
+        fun getBundle(canGoBack: Boolean, forceCompanyLoad: Boolean) = Bundle().apply {
             putBoolean(CAN_GO_BACK_EXTRA, canGoBack)
+            putBoolean(FORCE_COMPANY_LOAD_EXTRA, forceCompanyLoad)
         }
     }
 }

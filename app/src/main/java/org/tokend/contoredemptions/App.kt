@@ -13,9 +13,13 @@ import com.squareup.picasso.Picasso
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import okhttp3.CookieJar
+import org.jetbrains.anko.defaultSharedPreferences
 import org.tokend.contoredemptions.di.*
 import org.tokend.contoredemptions.di.apiprovider.ApiProviderModule
+import org.tokend.contoredemptions.di.companyprovider.CompanyProviderImpl
+import org.tokend.contoredemptions.di.companyprovider.CompanyProviderModule
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProviderModule
+import org.tokend.contoredemptions.util.SessionInfoStorage
 import org.tokend.contoredemptions.util.UrlConfig
 import org.tokend.contoredemptions.util.locale.AppLocaleManager
 import java.io.IOException
@@ -63,6 +67,13 @@ class App : MultiDexApplication() {
                         AppDatabaseModule(DATABASE_NAME)
                 )
                 .localeManagerModule(LocaleManagerModule(localeManager))
+                .companyProviderModule(
+                    CompanyProviderModule(
+                        CompanyProviderImpl(
+                            SessionInfoStorage(defaultSharedPreferences)
+                        )
+                    )
+                )
                 .build()
     }
 
