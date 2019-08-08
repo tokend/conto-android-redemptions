@@ -16,4 +16,5 @@
     <color name="white">#ffffff</color>
     <color name="mainActionButtonDisabled">#bcbcbc</color>
     <color name="floating_view_background">#3e000000</color>
+    <color name="zxing_viewfinder_mask">@android:color/transparent</color>
 </resources>
