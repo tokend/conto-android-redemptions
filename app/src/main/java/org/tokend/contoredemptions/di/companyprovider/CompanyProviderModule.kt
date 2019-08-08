@@ -5,10 +5,10 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class CompanyProviderModule {
+class CompanyProviderModule(private val companyProvider: CompanyProvider) {
     @Provides
     @Singleton
     fun companyProvider(): CompanyProvider {
-        return CompanyProviderImpl()
+        return companyProvider
     }
 }

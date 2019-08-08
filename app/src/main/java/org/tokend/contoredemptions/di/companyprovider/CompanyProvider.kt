@@ -6,4 +6,5 @@ interface CompanyProvider {
     fun hasCompany(): Boolean
     fun getCompany(): CompanyRecord
     fun setCompany(company: CompanyRecord)
+    val lastCompanyId: String?
 }

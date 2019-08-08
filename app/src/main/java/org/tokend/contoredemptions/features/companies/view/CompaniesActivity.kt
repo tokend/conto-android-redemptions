@@ -49,6 +49,9 @@ class CompaniesActivity : BaseActivity() {
     private val canGoBack: Boolean
         get() = intent.getBooleanExtra(CAN_GO_BACK_EXTRA, false)
 
+    private val forceCompanyLoad: Boolean
+        get() = intent.getBooleanExtra(FORCE_COMPANY_LOAD_EXTRA, true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_companies)
@@ -129,7 +132,7 @@ class CompaniesActivity : BaseActivity() {
         companiesRepository.itemsSubject
                 .compose(ObservableTransformers.defaultSchedulers())
                 .subscribe {
-                    displayCompanies()
+                    onCompaniesLoaded()
                 }
                 .addTo(compositeDisposable)
 
@@ -155,6 +158,20 @@ class CompaniesActivity : BaseActivity() {
     }
 
     private fun onFilterChanged() {
+        displayCompanies()
+    }
+
+    private fun onCompaniesLoaded() {
+        if (forceCompanyLoad) {
+            companiesRepository
+                .itemsList
+                .find { it.id == companyProvider.lastCompanyId }
+                ?.let { company ->
+                    onCompanySelected(company)
+                    return
+                }
+        }
+
         displayCompanies()
     }
 
@@ -213,9 +230,11 @@ class CompaniesActivity : BaseActivity() {
 
     companion object {
         private const val CAN_GO_BACK_EXTRA = "can_go_back"
+        private const val FORCE_COMPANY_LOAD_EXTRA = "force_company_open"
 
-        fun getBundle(canGoBack: Boolean) = Bundle().apply {
+        fun getBundle(canGoBack: Boolean, forceCompanyLoad: Boolean) = Bundle().apply {
             putBoolean(CAN_GO_BACK_EXTRA, canGoBack)
+            putBoolean(FORCE_COMPANY_LOAD_EXTRA, forceCompanyLoad)
         }
     }
 }

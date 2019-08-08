@@ -114,7 +114,7 @@ class Navigator private constructor() {
 
     fun openCompanies(requestCode: Int = 0) {
         context?.intentFor<CompaniesActivity>()
-                ?.putExtras(CompaniesActivity.getBundle(canGoBack = true))
+                ?.putExtras(CompaniesActivity.getBundle(canGoBack = true, forceCompanyLoad = false))
                 ?.also { performIntent(it, requestCode = requestCode) }
     }
 
