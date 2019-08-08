@@ -1,6 +1,6 @@
 package org.tokend.contoredemptions.di.companyprovider
 
-import org.tokend.contoredemptions.SessionInfoStorage
+import org.tokend.contoredemptions.util.SessionInfoStorage
 import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 
 class CompanyProviderImpl(
@@ -18,9 +18,9 @@ class CompanyProviderImpl(
 
     override fun setCompany(company: CompanyRecord) {
         this.company = company
-        sessionInfoStorage?.saveLastCompanyId(company.id)
+        sessionInfoStorage?.saveLastCompany(company)
     }
 
-    override val lastCompanyId: String?
-        get() = sessionInfoStorage?.loadLastCompanyId()
+    override val lastCompany: CompanyRecord?
+        get() = sessionInfoStorage?.loadLastCompany()
 }

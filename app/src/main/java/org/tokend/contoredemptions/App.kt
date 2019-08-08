@@ -16,10 +16,10 @@ import okhttp3.CookieJar
 import org.jetbrains.anko.defaultSharedPreferences
 import org.tokend.contoredemptions.di.*
 import org.tokend.contoredemptions.di.apiprovider.ApiProviderModule
-import org.tokend.contoredemptions.di.companyprovider.CompanyProvider
 import org.tokend.contoredemptions.di.companyprovider.CompanyProviderImpl
 import org.tokend.contoredemptions.di.companyprovider.CompanyProviderModule
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProviderModule
+import org.tokend.contoredemptions.util.SessionInfoStorage
 import org.tokend.contoredemptions.util.UrlConfig
 import org.tokend.contoredemptions.util.locale.AppLocaleManager
 import java.io.IOException

@@ -26,8 +26,8 @@ import org.tokend.contoredemptions.view.util.*
 class CompaniesActivity : BaseActivity() {
 
     private val loadingIndicator = LoadingIndicatorManager(
-            showLoading = { swipe_refresh.isRefreshing = true },
-            hideLoading = { swipe_refresh.isRefreshing = false }
+        showLoading = { swipe_refresh.isRefreshing = true },
+        hideLoading = { swipe_refresh.isRefreshing = false }
     )
 
     private val companiesRepository: CompaniesRepository
@@ -55,6 +55,13 @@ class CompaniesActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_companies)
+
+        if (forceCompanyLoad) {
+            companyProvider.lastCompany?.let {
+                onCompanySelected(it)
+                return
+            }
+        }
 
         initToolbar()
         initSwipeRefresh()
@@ -94,7 +101,7 @@ class CompaniesActivity : BaseActivity() {
         }
 
         companiesAdapter.registerAdapterDataObserver(
-                ScrollOnTopItemUpdateAdapterObserver(recycler_view)
+            ScrollOnTopItemUpdateAdapterObserver(recycler_view)
         )
 
         ElevationUtil.initScrollElevation(recycler_view, appbar_elevation_view)
@@ -111,12 +118,12 @@ class CompaniesActivity : BaseActivity() {
 
             searchManager.queryHint = getString(R.string.search)
             searchManager
-                    .queryChanges
-                    .compose(ObservableTransformers.defaultSchedulers())
-                    .subscribe { newValue ->
-                        filter = newValue.takeIf { it.isNotEmpty() }
-                    }
-                    .addTo(compositeDisposable)
+                .queryChanges
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribe { newValue ->
+                    filter = newValue.takeIf { it.isNotEmpty() }
+                }
+                .addTo(compositeDisposable)
 
             this.searchItem = searchItem
         } catch (e: Exception) {
@@ -130,68 +137,54 @@ class CompaniesActivity : BaseActivity() {
         companiesDisposable?.dispose()
 
         companiesRepository.itemsSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe {
-                    onCompaniesLoaded()
-                }
-                .addTo(compositeDisposable)
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe {
+                displayCompanies()
+            }
+            .addTo(compositeDisposable)
 
         companiesRepository.loadingSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe {
-                    loadingIndicator.setLoading(it, "companies")
-                }
-                .addTo(compositeDisposable)
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe {
+                loadingIndicator.setLoading(it, "companies")
+            }
+            .addTo(compositeDisposable)
 
         companiesRepository.errorsSubject
-                .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { error ->
-                    if (!companiesAdapter.hasData) {
-                        error_empty_view.showError(error, errorHandlerFactory.getDefault()) {
-                            update(true)
-                        }
-                    } else {
-                        errorHandlerFactory.getDefault().handle(error)
+            .compose(ObservableTransformers.defaultSchedulers())
+            .subscribe { error ->
+                if (!companiesAdapter.hasData) {
+                    error_empty_view.showError(error, errorHandlerFactory.getDefault()) {
+                        update(true)
                     }
+                } else {
+                    errorHandlerFactory.getDefault().handle(error)
                 }
-                .addTo(compositeDisposable)
+            }
+            .addTo(compositeDisposable)
     }
 
     private fun onFilterChanged() {
         displayCompanies()
     }
 
-    private fun onCompaniesLoaded() {
-        if (forceCompanyLoad) {
-            companiesRepository
-                .itemsList
-                .find { it.id == companyProvider.lastCompanyId }
-                ?.let { company ->
-                    onCompanySelected(company)
-                    return
-                }
-        }
-
-        displayCompanies()
-    }
-
     private fun displayCompanies() {
         val items = companiesRepository.itemsList
-                .asSequence()
-                .map { company ->
-                    CompanyListItem(company)
-                }
-                .sortedWith(Comparator { o1, o2 ->
-                    return@Comparator o1.name.compareTo(o2.name, true)
-                })
-                .toList()
-                .let { items ->
-                    filter?.let {
-                        items.filter { item ->
-                            SearchUtil.isMatchGeneralCondition(it, item.name, item.industry)
-                        }
-                    } ?: items
-                }
+            .asSequence()
+            .map { company ->
+                CompanyListItem(company)
+            }
+            .sortedWith(Comparator { o1, o2 ->
+                return@Comparator o1.name.compareTo(o2.name, true)
+            })
+            .toList()
+            .let { items ->
+                filter?.let {
+                    items.filter { item ->
+                        SearchUtil.isMatchGeneralCondition(it, item.name, item.industry)
+                    }
+                } ?: items
+            }
 
         companiesAdapter.setData(items)
     }
