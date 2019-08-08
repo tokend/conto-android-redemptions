@@ -3,6 +3,7 @@ package org.tokend.contoredemptions.features.companies.view
 import android.app.Activity
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -65,7 +66,6 @@ class CompaniesActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         title = getString(R.string.select_company_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(canGoBack)
-        initMenu()
     }
 
     private fun initSwipeRefresh() {
@@ -95,30 +95,6 @@ class CompaniesActivity : BaseActivity() {
         )
 
         ElevationUtil.initScrollElevation(recycler_view, appbar_elevation_view)
-    }
-
-    private fun initMenu() {
-        toolbar.inflateMenu(R.menu.explore)
-        val menu = toolbar.menu
-
-        try {
-            val searchItem = menu?.findItem(R.id.search)!!
-
-            val searchManager = MenuSearchViewManager(searchItem, toolbar, compositeDisposable)
-
-            searchManager.queryHint = getString(R.string.search)
-            searchManager
-                    .queryChanges
-                    .compose(ObservableTransformers.defaultSchedulers())
-                    .subscribe { newValue ->
-                        filter = newValue.takeIf { it.isNotEmpty() }
-                    }
-                    .addTo(compositeDisposable)
-
-            this.searchItem = searchItem
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     private var companiesDisposable: CompositeDisposable? = null
@@ -209,6 +185,31 @@ class CompaniesActivity : BaseActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.explore, menu)
+
+        try {
+            val searchItem = menu?.findItem(R.id.search)!!
+
+            val searchManager = MenuSearchViewManager(searchItem, toolbar, compositeDisposable)
+
+            searchManager.queryHint = getString(R.string.search)
+            searchManager
+                .queryChanges
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribe { newValue ->
+                    filter = newValue.takeIf { it.isNotEmpty() }
+                }
+                .addTo(compositeDisposable)
+
+            this.searchItem = searchItem
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return super.onCreateOptionsMenu(menu)
     }
 
     companion object {
