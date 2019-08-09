@@ -5,6 +5,7 @@ import org.tokend.contoredemptions.base.data.repository.RepositoryCache
 import org.tokend.contoredemptions.base.data.repository.SimpleMultipleItemsRepository
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
+import org.tokend.contoredemptions.extensions.mapSuccessful
 import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 import org.tokend.rx.extensions.toSingle
 import org.tokend.sdk.api.base.params.PagingParamsV2
@@ -38,7 +39,7 @@ class CompaniesRepository(
                 .loadAll()
                 .toSingle()
                 .map { companiesResources ->
-                    companiesResources.map {
+                    companiesResources.mapSuccessful {
                         CompanyRecord(it, urlConfigProvider.getConfig())
                     }
                 }
