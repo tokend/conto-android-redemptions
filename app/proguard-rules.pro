@@ -65,9 +65,7 @@
 }
 
 # MultiDex
--keep class android.support.multidex.**
+-keep class androidx.multidex.**
 
-# BottomNavigationView animation hack
--keepclassmembers com.google.android.material.bottomnavigation.BottomNavigationMenuView {
-    TransitionSet set;
-}
+# Material
+-dontwarn com.google.android.material.**

@@ -42,7 +42,7 @@ data class RedemptionDbEntity(
 
         @TypeConverter
         fun assetToJson(value: Asset?): String? {
-            return value?.let { gson.toJson(it) }
+            return value?.let { gson.toJson(SimpleAsset(it)) }
         }
     }
 

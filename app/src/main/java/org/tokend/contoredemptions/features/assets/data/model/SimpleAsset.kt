@@ -1,12 +1,15 @@
 package org.tokend.contoredemptions.features.assets.data.model
 
 import com.fasterxml.jackson.databind.node.NullNode
+import com.google.gson.annotations.SerializedName
 import org.tokend.sdk.api.generated.resources.AssetResource
 
-class SimpleAsset(
-        override val code: String,
-        override val trailingDigits: Int,
-        override val name: String?
+class SimpleAsset(@SerializedName("code")
+                  override val code: String,
+                  @SerializedName("trailing_digits")
+                  override val trailingDigits: Int,
+                  @SerializedName("name")
+                  override val name: String?
 ) : Asset {
 
     constructor(source: AssetResource) : this(
@@ -15,7 +18,7 @@ class SimpleAsset(
             name = source.details.get("name")?.takeIf { it !is NullNode }?.asText()
     )
 
-    constructor(source: Asset): this(
+    constructor(source: Asset) : this(
             code = source.code,
             trailingDigits = source.trailingDigits,
             name = source.name

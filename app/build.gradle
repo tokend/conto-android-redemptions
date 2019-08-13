@@ -12,6 +12,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
+        multiDexKeepFile file('multidex-keep.txt')
     }
     buildTypes {
         debug {
@@ -49,6 +50,10 @@ android {
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    dexOptions {
+        jumboMode true
     }
 }
 
