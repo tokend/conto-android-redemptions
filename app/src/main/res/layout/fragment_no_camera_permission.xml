@@ -12,6 +12,8 @@
             android:id="@+id/permission_required_text_view"
             style="@style/SecondaryText"
             android:layout_width="match_parent"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/camera_permission_required_hint"

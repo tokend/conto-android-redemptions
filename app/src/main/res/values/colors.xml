@@ -17,4 +17,5 @@
     <color name="mainActionButtonDisabled">#bcbcbc</color>
     <color name="floating_view_background">#3e000000</color>
     <color name="zxing_viewfinder_mask">@android:color/transparent</color>
+    <color name="qr_scanner_overlay_background">#E6FFFFFF</color>
 </resources>

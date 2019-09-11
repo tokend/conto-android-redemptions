@@ -1,25 +1,72 @@
 package org.tokend.contoredemptions.features.redemption.view
 
+import io.reactivex.Completable
+import io.reactivex.Single
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.features.qr.view.ScanQrFragment
+import org.tokend.contoredemptions.features.redemption.logic.RedemptionAlreadyProcessedException
+import org.tokend.contoredemptions.features.redemption.logic.RedemptionAssetNotOwnException
+import org.tokend.contoredemptions.features.redemption.logic.ValidateRedemptionRequestUseCase
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequestFormatException
+import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.sdk.utils.extentions.decodeBase64
+import org.tokend.wallet.NetworkParams
+import java.util.concurrent.TimeUnit
 
-class ScanRedemptionFragment: ScanQrFragment<RedemptionRequest>() {
+class ScanRedemptionFragment : ScanQrFragment<RedemptionRequest>() {
     override fun getTitle(): String? = getString(R.string.redemption_scan_title)
 
-    override fun getResult(content: String): RedemptionRequest {
-        val networkParams = repositoryProvider
-            .systemInfo()
-            .item
-            ?.toNetworkParams()
-            ?: throw IllegalStateException("System info must be available instantly at this moment")
+    override fun getResult(content: String): Single<RedemptionRequest> {
+        return getNetworkParams()
+                .map { networkParams ->
+                    RedemptionRequest.fromSerialized(networkParams, content.decodeBase64())
+                }
+                .flatMap { request ->
+                    validateRequest(request)
+                }
+    }
 
-        return try {
-            RedemptionRequest.fromSerialized(networkParams, content.decodeBase64())
-        } catch (e: Exception) {
-            throw Exception(getString(R.string.error_invalid_redemption_request))
+    private fun getNetworkParams(): Single<NetworkParams> {
+        return repositoryProvider
+                .systemInfo()
+                .getNetworkParams()
+    }
+
+    private fun validateRequest(request: RedemptionRequest): Single<RedemptionRequest> {
+        val performValidation =
+                ValidateRedemptionRequestUseCase(
+                        request,
+                        companyProvider.getCompany(),
+                        repositoryProvider
+                )
+                        .perform()
+
+        val visualTimeout = Completable.timer(500, TimeUnit.MILLISECONDS)
+
+        return Completable
+                .mergeDelayError(listOf(performValidation, visualTimeout))
+                .compose(ObservableTransformers.defaultSchedulersCompletable())
+                .toSingleDefault(request)
+    }
+
+    override fun showQrScanErrorAndRetry(error: Throwable) {
+        val message = when (error) {
+            is RedemptionRequestFormatException ->
+                getString(R.string.error_invalid_redemption_request)
+            is RedemptionAlreadyProcessedException ->
+                getString(R.string.error_redemption_request_no_more_valid)
+            is RedemptionAssetNotOwnException -> getString(
+                    R.string.template_error_redemption_not_own_asset,
+                    error.asset.name ?: error.asset.code
+            )
+            else -> null
+        }
+
+        if (message != null) {
+            showQrScanErrorAndRetry(message)
+        } else {
+            super.showQrScanErrorAndRetry(error)
         }
     }
 }

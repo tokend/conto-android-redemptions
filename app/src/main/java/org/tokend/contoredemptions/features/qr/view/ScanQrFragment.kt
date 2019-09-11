@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.ResultPoint
 import com.google.zxing.integration.android.IntentIntegrator
@@ -25,9 +26,10 @@ import org.tokend.contoredemptions.features.qr.model.NoCameraPermissionException
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.util.PermissionManager
 import org.tokend.contoredemptions.view.util.AnimationUtil
+import org.tokend.contoredemptions.view.util.LoadingIndicatorManager
 import java.util.concurrent.TimeUnit
 
-abstract class ScanQrFragment<ResultType> : BaseFragment() {
+abstract class ScanQrFragment<ResultType : Any> : BaseFragment() {
     private val cameraPermission = PermissionManager(Manifest.permission.CAMERA, 404)
     private var hasCameraPermission: Boolean = false
     private var qrScanIsRequired: Boolean = false
@@ -38,7 +40,16 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
     private val resultSubject = SingleSubject.create<ResultType>()
     val result: Single<ResultType> = resultSubject
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    private val loadingIndicator = LoadingIndicatorManager(
+        showLoading = { progress_qr_overlay.isVisible = true },
+        hideLoading = { progress_qr_overlay.isVisible = false }
+    )
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_scan_qr, container, false)
     }
 
@@ -125,15 +136,20 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
 
     private fun handleQrCodeContent(content: String) {
         qrScanIsRequired = false
-        try {
-            resultSubject.onSuccess(getResult(content))
-        } catch (e: Exception) {
-            showQrScanErrorAndRetry(e.localizedMessage)
-        }
+
+        getResult(content)
+            .compose(ObservableTransformers.defaultSchedulersSingle())
+            .doOnSubscribe { loadingIndicator.show() }
+            .doOnEvent { _, _ -> loadingIndicator.hide() }
+            .subscribeBy(
+                onSuccess = resultSubject::onSuccess,
+                onError = this::showQrScanErrorAndRetry
+            )
+            .addTo(compositeDisposable)
     }
 
     private var hideQrScanErrorDisposable: Disposable? = null
-    private fun showQrScanErrorAndRetry(error: String) {
+    protected fun showQrScanErrorAndRetry(error: String) {
         hideQrScanErrorDisposable?.dispose()
 
         qr_scan_error_text_view.text = error
@@ -165,6 +181,13 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
             .addTo(compositeDisposable)
     }
 
+    protected open fun showQrScanErrorAndRetry(error: Throwable) {
+        showQrScanErrorAndRetry(
+                errorHandlerFactory.getDefault().getErrorMessage(error)
+                ?: error.localizedMessage
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         resumeQrPreviewIfAllowed()
@@ -176,7 +199,10 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
         qr_scanner_view.pause()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         cameraPermission.handlePermissionResult(requestCode, permissions, grantResults)
     }
@@ -191,7 +217,7 @@ abstract class ScanQrFragment<ResultType> : BaseFragment() {
      * or throws [Exception] with message that will be
      * displayed below the scanner viewfinder
      */
-    abstract fun getResult(content: String): ResultType
+    abstract fun getResult(content: String): Single<ResultType>
 
     companion object {
         private const val ERROR_DURATION_MS = 1500L
