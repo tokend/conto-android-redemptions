@@ -1,7 +1,5 @@
 package org.tokend.contoredemptions.features.redemption.logic
 
-import android.util.Log
-import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -18,8 +16,6 @@ import org.tokend.rx.extensions.toSingle
 import org.tokend.sdk.api.general.model.SystemInfo
 import org.tokend.sdk.api.transactions.model.SubmitTransactionResponse
 import org.tokend.sdk.api.v3.accounts.params.AccountParamsV3
-import org.tokend.sdk.api.v3.transactions.model.SubmitTransactionRequestBody
-import org.tokend.sdk.factory.GsonFactory
 import org.tokend.wallet.NetworkParams
 import org.tokend.wallet.Transaction
 import org.tokend.wallet.TransactionBuilder
@@ -148,14 +144,6 @@ class ConfirmRedemptionRequestUseCase(
     }
 
     private fun submitTransaction(): Single<SubmitTransactionResponse> {
-        val body = SubmitTransactionRequestBody(
-            transaction.getEnvelope().toBase64(),
-            true
-        )
-        Log.i("Oleg", transaction.getEnvelope().toBase64())
-       // Log.i("Oleg", body.envelopeBase64)
-        Log.i("Oleg", GsonFactory().getBaseGson().toJson(body))
-        Log.i("Oleg", Gson().toJson(body))
         return txManager.submit(transaction)
     }
 

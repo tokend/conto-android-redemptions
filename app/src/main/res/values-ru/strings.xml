@@ -42,6 +42,7 @@
     <string name="redemption_account">Аккаунт</string>
     <string name="redemption_company">Компания</string>
     <string name="loading_data">Загрузка…</string>
+    <string name="error">Ошибка</string>
     <string-array name="months">
         <item>Январь</item>
         <item>Февраль</item>

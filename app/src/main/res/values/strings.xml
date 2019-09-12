@@ -41,6 +41,8 @@
     <string name="redemption_account">Account</string>
     <string name="redemption_company">Company</string>
     <string name="loading_data">Loading data…</string>
+    <string name="error">Error</string>
+    <string name="ok" translatable="false">OK</string>
     <string-array name="months">
         <item>January</item>
         <item>February</item>

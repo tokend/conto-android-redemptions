@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.rxkotlin.addTo
@@ -151,13 +152,21 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
     private fun onRedemptionConfirmationError(error: Throwable) {
         when (error) {
-            is RedemptionAlreadyProcessedException -> {
-                toastManager.long(R.string.error_redemption_request_no_more_valid)
+            is RedemptionAlreadyProcessedException -> showAlreadyProcessedRequestDialog()
+            else -> errorHandlerFactory.getDefault().handle(error)
+        }
+    }
+
+    private fun showAlreadyProcessedRequestDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.error)
+            .setMessage(R.string.error_redemption_request_no_more_valid)
+            .setPositiveButton(R.string.ok, null)
+            .setOnDismissListener {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
             }
-            else -> errorHandlerFactory.getDefault().handle(error)
-        }
+            .show()
     }
 
     private fun displayDetails() {
