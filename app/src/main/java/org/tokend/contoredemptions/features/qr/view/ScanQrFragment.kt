@@ -134,7 +134,7 @@ abstract class ScanQrFragment<ResultType : Any> : BaseFragment() {
         }
     }
 
-    private fun handleQrCodeContent(content: String) {
+    protected open fun handleQrCodeContent(content: String) {
         qrScanIsRequired = false
 
         getResult(content)
