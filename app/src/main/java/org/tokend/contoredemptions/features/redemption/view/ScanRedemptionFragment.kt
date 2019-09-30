@@ -3,6 +3,7 @@ package org.tokend.contoredemptions.features.redemption.view
 import android.util.LruCache
 import io.reactivex.Completable
 import io.reactivex.Single
+import org.spongycastle.util.encoders.DecoderException
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.features.qr.view.ScanQrFragment
 import org.tokend.contoredemptions.features.redemption.logic.RedemptionAlreadyProcessedException
@@ -67,7 +68,8 @@ class ScanRedemptionFragment : ScanQrFragment<RedemptionRequest>() {
 
     override fun showQrScanErrorAndRetry(error: Throwable) {
         val message = when (error) {
-            is RedemptionRequestFormatException ->
+            is RedemptionRequestFormatException,
+            is DecoderException ->
                 getString(R.string.error_invalid_redemption_request)
             is RedemptionAlreadyProcessedException ->
                 getString(R.string.error_redemption_request_no_more_valid)
