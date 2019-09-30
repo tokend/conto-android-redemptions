@@ -3,7 +3,9 @@ package org.tokend.contoredemptions.features.redemption.model
 import org.tokend.wallet.Base32Check
 import org.tokend.wallet.NetworkParams
 import org.tokend.wallet.Transaction
+import org.tokend.wallet.TransactionBuilder
 import org.tokend.wallet.xdr.*
+import org.tokend.wallet.xdr.op_extensions.SimplePaymentOp
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
@@ -36,6 +38,36 @@ class RedemptionRequest(
             stream.write(signature.signature)
         }
         return byteStream.toByteArray()
+    }
+
+    fun toTransaction(senderBalanceId: String,
+                      recipientAccountId: String,
+                      networkParams: NetworkParams): Transaction {
+        val zeroFee = Fee(0, 0, Fee.FeeExt.EmptyVersion())
+
+        val operation = SimplePaymentOp(
+            sourceBalanceId = senderBalanceId,
+            destAccountId = recipientAccountId,
+            amount = networkParams.amountToPrecised(amount),
+            subject = "",
+            reference = salt.toString(),
+            feeData = PaymentFeeData(
+                sourceFee = zeroFee,
+                destinationFee = zeroFee,
+                sourcePaysForDest = false,
+                ext = PaymentFeeData.PaymentFeeDataExt.EmptyVersion()
+            )
+        )
+
+        val transaction = TransactionBuilder(networkParams, sourceAccountId)
+            .addOperation(Operation.OperationBody.Payment(operation))
+            .setSalt(salt)
+            .setTimeBounds(timeBounds)
+            .build()
+
+        transaction.addSignature(signature)
+
+        return transaction
     }
 
     companion object {

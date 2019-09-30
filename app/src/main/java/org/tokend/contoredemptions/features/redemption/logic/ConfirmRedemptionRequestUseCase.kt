@@ -4,6 +4,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toMaybe
+import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
@@ -18,11 +19,6 @@ import org.tokend.sdk.api.transactions.model.SubmitTransactionResponse
 import org.tokend.sdk.api.v3.accounts.params.AccountParamsV3
 import org.tokend.wallet.NetworkParams
 import org.tokend.wallet.Transaction
-import org.tokend.wallet.TransactionBuilder
-import org.tokend.wallet.xdr.Fee
-import org.tokend.wallet.xdr.Operation
-import org.tokend.wallet.xdr.PaymentFeeData
-import org.tokend.wallet.xdr.op_extensions.SimplePaymentOp
 
 class ConfirmRedemptionRequestUseCase(
     private val request: RedemptionRequest,
@@ -114,33 +110,9 @@ class ConfirmRedemptionRequestUseCase(
     private fun getTransaction(): Single<Transaction> {
         val accountId = company.id
 
-        val zeroFee = Fee(0, 0, Fee.FeeExt.EmptyVersion())
-
-        return Single.defer {
-            val operation = SimplePaymentOp(
-                sourceBalanceId = senderBalanceId,
-                destAccountId = accountId,
-                amount = networkParams.amountToPrecised(request.amount),
-                subject = "",
-                reference = request.salt.toString(),
-                feeData = PaymentFeeData(
-                    sourceFee = zeroFee,
-                    destinationFee = zeroFee,
-                    sourcePaysForDest = false,
-                    ext = PaymentFeeData.PaymentFeeDataExt.EmptyVersion()
-                )
-            )
-
-            val transaction = TransactionBuilder(networkParams, request.sourceAccountId)
-                .addOperation(Operation.OperationBody.Payment(operation))
-                .setSalt(request.salt)
-                .setTimeBounds(request.timeBounds)
-                .build()
-
-            transaction.addSignature(request.signature)
-
-            Single.just(transaction)
-        }.subscribeOn(Schedulers.newThread())
+        return {
+            request.toTransaction(senderBalanceId, accountId, networkParams)
+        }.toSingle().subscribeOn(Schedulers.newThread())
     }
 
     private fun submitTransaction(): Single<SubmitTransactionResponse> {
