@@ -11,7 +11,7 @@ import org.tokend.sdk.api.base.params.PagingOrder
 import org.tokend.sdk.api.base.params.PagingParams
 
 class RedemptionsRepository(
-        private val companyId: String,
+        private val companyId: String?,
         private val service: RedemptionsService,
         itemsCache: RepositoryCache<RedemptionRecord>
 ) : PagedDataRepository<RedemptionRecord>(itemsCache) {

@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.Gravity
 import android.widget.ImageView
 import androidx.appcompat.widget.Toolbar
-import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -16,9 +15,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
-import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.view.util.FragmentFactory
-import org.tokend.contoredemptions.view.util.LogoUtil
 
 class DashboardActivity : BaseActivity() {
 
@@ -52,30 +49,6 @@ class DashboardActivity : BaseActivity() {
                     )
 
                     scaleType = ImageView.ScaleType.FIT_START
-                }
-        )
-
-        toolbar.addView(
-                ImageView(this).apply {
-                    val size = dip(32)
-
-                    layoutParams = Toolbar.LayoutParams(size, size).apply {
-                        gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                        setMargins(0, 0,
-                                context.resources.getDimensionPixelSize(R.dimen.standard_margin), 0)
-                    }
-
-                    scaleType = ImageView.ScaleType.CENTER_INSIDE
-
-                    val c = companyProvider.getCompany()
-                    LogoUtil.setLogo(this, c.name, c.logoUrl, size)
-
-                    TooltipCompat.setTooltipText(this, getString(R.string.select_company_title))
-
-                    setOnClickListener {
-                        Navigator.from(this@DashboardActivity)
-                                .openCompanies(COMPANY_SELECTION_REQUEST)
-                    }
                 }
         )
 

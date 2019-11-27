@@ -22,7 +22,7 @@ import org.tokend.contoredemptions.view.util.ElevationUtil
 
 class RedemptionsFragment : BaseFragment() {
     private val redemptionsRepository: RedemptionsRepository
-        get() = repositoryProvider.redemptions(companyProvider.getCompany().id)
+        get() = repositoryProvider.redemptions()
 
     private val accountIdFormatter = AccountIdFormatter()
 

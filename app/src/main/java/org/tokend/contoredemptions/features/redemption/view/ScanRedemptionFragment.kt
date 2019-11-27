@@ -53,7 +53,6 @@ class ScanRedemptionFragment : ScanQrFragment<RedemptionRequest>() {
         val performValidation =
                 ValidateRedemptionRequestUseCase(
                         request,
-                        companyProvider.getCompany(),
                         repositoryProvider
                 )
                         .perform()
@@ -74,7 +73,7 @@ class ScanRedemptionFragment : ScanQrFragment<RedemptionRequest>() {
             is RedemptionAlreadyProcessedException ->
                 getString(R.string.error_redemption_request_no_more_valid)
             is RedemptionAssetNotOwnException -> getString(
-                    R.string.template_error_redemption_not_own_asset,
+                    R.string.template_error_redemption_foreign_asset,
                     error.asset.name ?: error.asset.code
             )
             else -> null

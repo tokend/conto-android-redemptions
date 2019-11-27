@@ -8,7 +8,7 @@ import org.tokend.sdk.api.base.params.PagingParams
 
 interface RedemptionsService {
 
-    fun getPage(companyId: String,
+    fun getPage(companyId: String?,
                 pagingParams: PagingParams): Single<DataPage<RedemptionRecord>>
 
     fun add(redemptionRecord: RedemptionRecord): Completable

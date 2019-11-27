@@ -15,7 +15,7 @@ import org.tokend.sdk.api.base.params.PagingParams
 class RedemptionsDbService(
         private val dao: RedemptionsDao
 ) : RedemptionsService {
-    override fun getPage(companyId: String,
+    override fun getPage(companyId: String?,
                          pagingParams: PagingParams): Single<DataPage<RedemptionRecord>> {
         return Single.defer {
             val limit = pagingParams.limit ?: DEFAULT_LIMIT
@@ -27,11 +27,18 @@ class RedemptionsDbService(
                 )
             }
 
-            val items = dao.getPageDesc(
-                    companyId,
-                    limit,
-                    cursor
-            )
+            val items =
+                    if (companyId != null)
+                        dao.getCompanyPageDesc(
+                                companyId,
+                                limit,
+                                cursor
+                        )
+                    else
+                        dao.getPageDesc(
+                                limit,
+                                cursor
+                        )
 
             Single.just(
                     DataPage(

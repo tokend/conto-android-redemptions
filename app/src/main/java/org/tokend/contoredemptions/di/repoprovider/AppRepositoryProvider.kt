@@ -48,8 +48,8 @@ class AppRepositoryProvider(
         return systemInfoRepository
     }
 
-    override fun redemptions(companyId: String): RedemptionsRepository {
-        val key = companyId
+    override fun redemptions(companyId: String?): RedemptionsRepository {
+        val key = companyId.toString()
         return redemptionsRepositories.getOrPut(key) {
             RedemptionsRepository(
                     companyId,

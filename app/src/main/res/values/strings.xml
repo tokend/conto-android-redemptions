@@ -43,6 +43,7 @@
     <string name="loading_data">Loading data…</string>
     <string name="error">Error</string>
     <string name="ok" translatable="false">OK</string>
+    <string name="template_error_redemption_foreign_asset">\"%1$s\" is not in this system</string>
     <string-array name="months">
         <item>January</item>
         <item>February</item>

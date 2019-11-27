@@ -9,6 +9,7 @@ import io.reactivex.schedulers.Schedulers
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.features.assets.data.model.Asset
+import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
 import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
@@ -22,12 +23,11 @@ import org.tokend.wallet.Transaction
 
 class ConfirmRedemptionRequestUseCase(
     private val request: RedemptionRequest,
-    private val company: CompanyRecord,
     private val repositoryProvider: RepositoryProvider,
     private val apiProvider: ApiProvider,
     private val txManager: TxManager
 ) {
-
+    private lateinit var company: CompanyRecord
     private lateinit var systemInfo: SystemInfo
     private lateinit var networkParams: NetworkParams
     private lateinit var senderBalanceId: String
@@ -36,7 +36,14 @@ class ConfirmRedemptionRequestUseCase(
     private lateinit var record: RedemptionRecord
 
     fun perform(): Completable {
-        return getSystemInfo()
+        return getCompany()
+            .doOnSuccess { company ->
+                this.company = company
+            }
+            .flatMap {
+                getSystemInfo()
+
+            }
             .doOnSuccess { systemInfo ->
                 this.systemInfo = systemInfo
                 this.networkParams = systemInfo.toNetworkParams()
@@ -72,6 +79,24 @@ class ConfirmRedemptionRequestUseCase(
                 updateRepositories()
             }
             .ignoreElement()
+    }
+
+    private fun getCompany(): Single<CompanyRecord> {
+        return Single.zip(
+                repositoryProvider.assets().getSingle(request.assetCode),
+                repositoryProvider.companies().updateIfNotFreshDeferred().andThen({
+                    repositoryProvider.companies().itemsMap
+                }.toSingle()),
+                BiFunction { asset: AssetRecord, companiesMap: Map<String, CompanyRecord> ->
+                    asset to companiesMap
+                }
+        )
+                .flatMap { (asset, companiesMap) ->
+                    companiesMap[asset.ownerAccountId]
+                            .toMaybe()
+                            .switchIfEmpty(Single.error(IllegalStateException("No company found " +
+                                    "for asset ${request.assetCode}")))
+                }
     }
 
     private fun getSystemInfo(): Single<SystemInfo> {

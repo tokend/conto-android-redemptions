@@ -9,7 +9,7 @@ import org.tokend.contoredemptions.features.transactions.storage.SystemInfoRepos
 interface RepositoryProvider {
     fun systemInfo(): SystemInfoRepository
     fun companies(): CompaniesRepository
-    fun redemptions(companyId: String): RedemptionsRepository
+    fun redemptions(companyId: String? = null): RedemptionsRepository
     fun assets(): AssetsRepository
     fun accountDetails(): AccountDetailsRepository
 }

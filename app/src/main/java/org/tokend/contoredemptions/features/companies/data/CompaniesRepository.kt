@@ -21,6 +21,9 @@ class CompaniesRepository(
         itemsCache: RepositoryCache<CompanyRecord>
 ) : SimpleMultipleItemsRepository<CompanyRecord>(itemsCache) {
 
+    private val mItemsMap = mutableMapOf<String, CompanyRecord>()
+    val itemsMap: Map<String, CompanyRecord> = mItemsMap
+
     override fun getItems(): Single<List<CompanyRecord>> {
 
         val loader = SimplePagedResourceLoader({ nextCursor ->
@@ -49,5 +52,11 @@ class CompaniesRepository(
                     else
                         Single.error(error)
                 }
+    }
+
+    override fun broadcast() {
+        mItemsMap.clear()
+        itemsCache.items.associateByTo(mItemsMap, CompanyRecord::id)
+        super.broadcast()
     }
 }
