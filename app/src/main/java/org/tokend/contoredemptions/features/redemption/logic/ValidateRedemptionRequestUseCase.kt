@@ -4,7 +4,10 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toSingle
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
+import org.tokend.contoredemptions.features.assets.data.model.SimpleAsset
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
+import org.tokend.sdk.utils.extentions.isNotFound
+import retrofit2.HttpException
 
 class ValidateRedemptionRequestUseCase(
         private val request: RedemptionRequest,
@@ -34,6 +37,12 @@ class ValidateRedemptionRequestUseCase(
         return repositoryProvider
                 .assets()
                 .getSingle(request.assetCode)
+                .onErrorResumeNext { error ->
+                    if (error is HttpException && error.isNotFound())
+                        Single.error(RedemptionAssetNotOwnException(SimpleAsset(request.assetCode)))
+                    else
+                        Single.error(error)
+                }
                 .flatMap { asset ->
                     repositoryProvider
                             .companies()

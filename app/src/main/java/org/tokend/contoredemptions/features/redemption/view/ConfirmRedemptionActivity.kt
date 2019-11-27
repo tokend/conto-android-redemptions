@@ -8,8 +8,12 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxkotlin.toMaybe
+import io.reactivex.rxkotlin.toSingle
 import kotlinx.android.synthetic.main.activity_confirm_redemption.*
 import kotlinx.android.synthetic.main.appbar.*
 import kotlinx.android.synthetic.main.include_appbar_elevation.*
@@ -19,6 +23,8 @@ import org.jetbrains.anko.onClick
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
 import org.tokend.contoredemptions.features.assets.data.model.Asset
+import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
+import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 import org.tokend.contoredemptions.features.redemption.logic.ConfirmRedemptionRequestUseCase
 import org.tokend.contoredemptions.features.redemption.logic.RedemptionAlreadyProcessedException
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
@@ -88,6 +94,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
         initViews()
         displayDetails()
         loadAndDisplayRequestorEmail()
+        loadAndDisplayCompany()
     }
 
     private fun initViews() {
@@ -158,14 +165,14 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
     private fun showAlreadyProcessedRequestDialog() {
         AlertDialog.Builder(this)
-            .setTitle(R.string.error)
-            .setMessage(R.string.error_redemption_request_no_more_valid)
-            .setPositiveButton(R.string.ok, null)
-            .setOnDismissListener {
-                setResult(Activity.RESULT_CANCELED)
-                finish()
-            }
-            .show()
+                .setTitle(R.string.error)
+                .setMessage(R.string.error_redemption_request_no_more_valid)
+                .setPositiveButton(R.string.ok, null)
+                .setOnDismissListener {
+                    setResult(Activity.RESULT_CANCELED)
+                    finish()
+                }
+                .show()
     }
 
     private fun displayDetails() {
@@ -211,6 +218,39 @@ class ConfirmRedemptionActivity : BaseActivity() {
                         }
                 )
                 .addTo(compositeDisposable)
+    }
+
+    private fun loadAndDisplayCompany() {
+        Single.zip(
+                repositoryProvider.assets().getSingle(request.assetCode),
+                repositoryProvider.companies().updateIfNotFreshDeferred().andThen({
+                    repositoryProvider.companies().itemsMap
+                }.toSingle()),
+                BiFunction { asset: AssetRecord, companiesMap: Map<String, CompanyRecord> ->
+                    asset to companiesMap
+                }
+        )
+                .flatMap { (asset, companiesMap) ->
+                    companiesMap[asset.ownerAccountId]
+                            .toMaybe()
+                            .switchIfEmpty(Single.error(IllegalStateException("No company found " +
+                                    "for asset ${request.assetCode}")))
+                }
+                .compose(ObservableTransformers.defaultSchedulersSingle())
+                .subscribeBy(
+                        onSuccess = this::displayCompany,
+                        onError = { it.printStackTrace() }
+                )
+    }
+
+    private fun displayCompany(company: CompanyRecord) {
+        adapter.addData(
+                DetailsItem(
+                        icon = ContextCompat.getDrawable(this, R.drawable.ic_briefcase),
+                        hint = getString(R.string.redemption_company),
+                        text = company.name
+                )
+        )
     }
 
     companion object {
