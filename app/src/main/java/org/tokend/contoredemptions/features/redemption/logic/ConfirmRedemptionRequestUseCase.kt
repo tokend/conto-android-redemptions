@@ -184,7 +184,7 @@ class ConfirmRedemptionRequestUseCase(
 
     private fun updateRepositories(): Single<Boolean> {
         return repositoryProvider
-            .redemptions(company.id)
+            .redemptions()
             .add(record)
             .toSingleDefault(true)
     }
