@@ -1,22 +1,54 @@
 package org.tokend.contoredemptions.features.redemption.logic
 
-import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.rxkotlin.toSingle
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.features.companies.data.model.CompanyRecord
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
+import org.tokend.wallet.NetworkParams
 
-class ValidateRedemptionRequestUseCase(
-        private val request: RedemptionRequest,
+class DeserializeAndValidateRedemptionRequestUseCase(
+        private val serializedRequest: ByteArray,
         private val company: CompanyRecord,
         private val repositoryProvider: RepositoryProvider
 ) {
-    fun perform(): Completable {
-        return checkReference()
+    private lateinit var networkParams: NetworkParams
+    private lateinit var request: RedemptionRequest
+
+    fun perform(): Single<RedemptionRequest> {
+        return getNetworkParams()
+                .doOnSuccess { networkParams ->
+                    this.networkParams = networkParams
+                }
+                .flatMap {
+                    getRedemptionRequest()
+                }
+                .doOnSuccess { request ->
+                    this.request = request
+                }
+                .flatMap {
+                    checkReference()
+                }
                 .flatMap {
                     checkAsset()
                 }
-                .ignoreElement()
+                .map {
+                    request
+                }
+    }
+
+    private fun getNetworkParams(): Single<NetworkParams> {
+        return repositoryProvider
+                .systemInfo()
+                .getNetworkParams()
+    }
+
+    private fun getRedemptionRequest(): Single<RedemptionRequest> {
+        return try {
+            RedemptionRequest.fromSerialized(networkParams, serializedRequest).toSingle()
+        } catch (e: Exception) {
+            Single.error<RedemptionRequest>(e)
+        }
     }
 
     private fun checkReference(): Single<Boolean> {
