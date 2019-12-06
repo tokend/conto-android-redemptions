@@ -26,6 +26,7 @@ import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.util.FragmentFactory
 import org.tokend.contoredemptions.view.util.LogoUtil
 import org.tokend.contoredemptions.view.util.ProgressDialogFactory
+import java.util.concurrent.TimeUnit
 
 class DashboardActivity : BaseActivity() {
 
@@ -103,7 +104,9 @@ class DashboardActivity : BaseActivity() {
     // region NFC
     private fun initNfcReader() {
         nfcRequestsReader = NfcRedemptionRequestsReader(this)
-        nfcRequestsReader.readRequests
+        nfcRequestsReader
+                .readRequests
+                .debounce(500, TimeUnit.MILLISECONDS)
                 .compose(ObservableTransformers.defaultSchedulers())
                 .subscribeBy(
                         onNext = this::onNfcRedemptionRequestRead,
