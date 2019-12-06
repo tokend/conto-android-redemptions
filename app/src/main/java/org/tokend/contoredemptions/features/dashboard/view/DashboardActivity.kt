@@ -10,16 +10,26 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_dashboard.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
+import org.tokend.contoredemptions.features.redemption.logic.DeserializeAndValidateRedemptionRequestUseCase
+import org.tokend.contoredemptions.features.redemption.logic.NfcRedemptionRequestsReader
+import org.tokend.contoredemptions.util.Navigator
+import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.util.FragmentFactory
+import org.tokend.contoredemptions.view.util.ProgressDialogFactory
+import java.util.concurrent.TimeUnit
 
 class DashboardActivity : BaseActivity() {
 
     private val fragmentFactory = FragmentFactory()
+    private lateinit var nfcRequestsReader: NfcRedemptionRequestsReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +37,7 @@ class DashboardActivity : BaseActivity() {
 
         initToolbar()
         initTabs()
+        initNfcReader()
     }
 
     private fun initToolbar() {
@@ -64,6 +75,42 @@ class DashboardActivity : BaseActivity() {
         bottom_tabs.selectedItemId = R.id.scan
     }
 
+    // region NFC
+    private fun initNfcReader() {
+        nfcRequestsReader = NfcRedemptionRequestsReader(this)
+        nfcRequestsReader
+                .readRequests
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribeBy(
+                        onNext = this::onNfcRedemptionRequestRead,
+                        onError = {}
+                )
+                .addTo(compositeDisposable)
+    }
+
+    private fun onNfcRedemptionRequestRead(request: ByteArray) {
+        var disposable: Disposable? = null
+
+        val progress = ProgressDialogFactory.getDialog(this, R.string.processing_progress) {
+            disposable?.dispose()
+        }
+
+        disposable = DeserializeAndValidateRedemptionRequestUseCase(
+                request,
+                repositoryProvider
+        )
+                .perform()
+                .compose(ObservableTransformers.defaultSchedulersSingle())
+                .doOnSubscribe { progress.show() }
+                .doOnEvent { _, _ -> progress.dismiss() }
+                .subscribeBy(
+                        onSuccess = { Navigator.from(this).openAcceptRedemption(request) },
+                        onError = { errorHandlerFactory.getDefault().handle(it) }
+                )
+    }
+    // endregion
+
     private fun displayFragment(id: Int) {
         when (id) {
             R.id.scan -> displayFragment(fragmentFactory.getProcessRedemptionFragment())
@@ -88,6 +135,16 @@ class DashboardActivity : BaseActivity() {
                 COMPANY_SELECTION_REQUEST -> finish()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        nfcRequestsReader.startReadingIfAvailable()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcRequestsReader.stopReading()
     }
 
     companion object {

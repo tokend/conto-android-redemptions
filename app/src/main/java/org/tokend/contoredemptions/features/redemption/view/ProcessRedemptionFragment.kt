@@ -16,7 +16,6 @@ import org.tokend.contoredemptions.features.qr.view.ScanQrFragment
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.util.ObservableTransformers
-import org.tokend.sdk.utils.extentions.encodeBase64String
 
 class ProcessRedemptionFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -69,20 +68,8 @@ class ProcessRedemptionFragment : BaseFragment() {
             return
         }
 
-        val asset = repositoryProvider
-                .assets()
-                .itemsList
-                .find { it.code == request.assetCode }
-        if (asset == null) {
-            onRedemptionProcessingError(
-                    IllegalStateException("Asset ${request.assetCode} must available instantly at this moment")
-            )
-            return
-        }
-
         Navigator.from(this).openAcceptRedemption(
-                request.serialize(networkParams).encodeBase64String(),
-                asset,
+                request.serialize(networkParams),
                 CONFIRM_REDEMPTION_REQUEST
         )
     }

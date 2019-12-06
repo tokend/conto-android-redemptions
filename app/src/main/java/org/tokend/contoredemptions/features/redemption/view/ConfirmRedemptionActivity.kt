@@ -37,6 +37,7 @@ import org.tokend.contoredemptions.view.details.adapter.DetailsItemsAdapter
 import org.tokend.contoredemptions.view.util.ElevationUtil
 import org.tokend.contoredemptions.view.util.ProgressDialogFactory
 import org.tokend.sdk.utils.extentions.decodeBase64
+import org.tokend.sdk.utils.extentions.encodeBase64String
 
 class ConfirmRedemptionActivity : BaseActivity() {
     private var emailLoadingFinished: Boolean = false
@@ -65,18 +66,6 @@ class ConfirmRedemptionActivity : BaseActivity() {
             return
         }
 
-        val asset = intent.getSerializableExtra(EXTRA_ASSET) as? Asset
-        if (asset == null) {
-            errorHandler.handle(
-                    IllegalArgumentException(
-                            "No $EXTRA_ASSET specified"
-                    )
-            )
-            finish()
-            return
-        }
-        this.asset = asset
-
         try {
             val networkParams = repositoryProvider
                     .systemInfo()
@@ -90,6 +79,19 @@ class ConfirmRedemptionActivity : BaseActivity() {
             finish()
             return
         }
+
+        val asset = repositoryProvider
+                .assets()
+                .itemsList
+                .find { it.code == request.assetCode }
+        if (asset == null) {
+            errorHandler.handle(
+                    IllegalStateException("Asset ${request.assetCode} must available instantly at this moment")
+            )
+            finish()
+            return
+        }
+        this.asset = asset
 
         initViews()
         displayDetails()
@@ -255,14 +257,11 @@ class ConfirmRedemptionActivity : BaseActivity() {
 
     companion object {
         private const val EXTRA_REDEMPTION = "extra_redemption"
-        private const val EXTRA_ASSET = "extra_asset"
 
         private const val REQUESTOR_ITEM_ID = 1L
 
-        fun getBundle(redemptionRequest: String,
-                      asset: Asset) = Bundle().apply {
-            putString(EXTRA_REDEMPTION, redemptionRequest)
-            putSerializable(EXTRA_ASSET, asset)
+        fun getBundle(redemptionRequest: ByteArray) = Bundle().apply {
+            putString(EXTRA_REDEMPTION, redemptionRequest.encodeBase64String())
         }
     }
 }

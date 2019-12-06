@@ -3,17 +3,17 @@ package org.tokend.contoredemptions.features.redemption.view
 import android.util.LruCache
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.rxkotlin.toSingle
 import org.spongycastle.util.encoders.DecoderException
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.features.qr.view.ScanQrFragment
+import org.tokend.contoredemptions.features.redemption.logic.DeserializeAndValidateRedemptionRequestUseCase
 import org.tokend.contoredemptions.features.redemption.logic.RedemptionAlreadyProcessedException
 import org.tokend.contoredemptions.features.redemption.logic.RedemptionAssetNotOwnException
-import org.tokend.contoredemptions.features.redemption.logic.ValidateRedemptionRequestUseCase
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequestFormatException
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.sdk.utils.extentions.decodeBase64
-import org.tokend.wallet.NetworkParams
 import java.util.concurrent.TimeUnit
 
 class ScanRedemptionFragment : ScanQrFragment<RedemptionRequest>() {
@@ -34,35 +34,28 @@ class ScanRedemptionFragment : ScanQrFragment<RedemptionRequest>() {
     }
 
     override fun getResult(content: String): Single<RedemptionRequest> {
-        return getNetworkParams()
-                .map { networkParams ->
-                    RedemptionRequest.fromSerialized(networkParams, content.decodeBase64())
-                }
-                .flatMap { request ->
-                    validateRequest(request)
-                }
-    }
+        val visualTimeout = Completable.timer(500, TimeUnit.MILLISECONDS)
 
-    private fun getNetworkParams(): Single<NetworkParams> {
-        return repositoryProvider
-                .systemInfo()
-                .getNetworkParams()
-    }
+        val serializedRequest = try {
+            content.decodeBase64()
+        } catch (e: Exception) {
+            return Single.error(e)
+        }
 
-    private fun validateRequest(request: RedemptionRequest): Single<RedemptionRequest> {
-        val performValidation =
-                ValidateRedemptionRequestUseCase(
-                        request,
+        lateinit var request: RedemptionRequest
+        val performDeserializationAndValidation =
+                DeserializeAndValidateRedemptionRequestUseCase(
+                        serializedRequest,
                         repositoryProvider
                 )
                         .perform()
-
-        val visualTimeout = Completable.timer(500, TimeUnit.MILLISECONDS)
+                        .doOnSuccess { request = it }
+                        .ignoreElement()
 
         return Completable
-                .mergeDelayError(listOf(performValidation, visualTimeout))
+                .mergeDelayError(listOf(visualTimeout, performDeserializationAndValidation))
                 .compose(ObservableTransformers.defaultSchedulersCompletable())
-                .toSingleDefault(request)
+                .andThen({ request }.toSingle())
     }
 
     override fun showQrScanErrorAndRetry(error: Throwable) {
