@@ -28,7 +28,7 @@
     <string name="redemptions_history">Історія</string>
     <string name="enable_flash_action">Увімкнути ліхтар</string>
     <string name="disable_flash_action">Вимкнути ліхтар</string>
-    <string name="redemption_scan_title">Відскануйте QR код запиту погашення</string>
+    <string name="redemption_scan_title">Відскануйте QR код для погашення</string>
     <string name="camera_permission_required_hint">Потрібен дозвіл на використання камери</string>
     <string name="open_permission_settings">Відкрити налаштування</string>
     <string name="template_error_redemption_not_own_asset">\"%1$s\" не належить вашій компанії</string>
@@ -39,11 +39,19 @@
     <string name="error_redemption_request_no_more_valid">Погашення вже виконано, запит недійсний</string>
     <string name="template_balance_change_by_account">Від %1$s</string>
     <string name="no_redemptions_yet">Історія порожня</string>
-    <string name="redemption_account">Акаунт</string>
+    <string name="account">Акаунт</string>
     <string name="redemption_company">Компанія</string>
     <string name="loading_data">Завантаження…</string>
     <string name="error">Помилка</string>
     <string name="template_error_redemption_foreign_asset">\"%1$s\" знаходиться в іншій системі</string>
+    <string name="booking">Бронювання</string>
+    <string name="booking_room">Кімната</string>
+    <string name="time_from">З</string>
+    <string name="time_until">До</string>
+    <string name="booking_state">Статус</string>
+    <string name="booking_state_waiting_for_payment">Очікується оплата</string>
+    <string name="booking_state_canceled">Скасовано</string>
+    <string name="booking_state_expired">Термін вийшов</string>
     <string-array name="months">
         <item>Січень</item>
         <item>Лютий</item>

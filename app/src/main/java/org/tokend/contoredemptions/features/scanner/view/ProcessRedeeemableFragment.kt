@@ -1,4 +1,4 @@
-package org.tokend.contoredemptions.features.redemption.view
+package org.tokend.contoredemptions.features.scanner.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,13 +11,15 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseFragment
+import org.tokend.contoredemptions.features.booking.model.BookingRecord
 import org.tokend.contoredemptions.features.qr.model.NoCameraPermissionException
 import org.tokend.contoredemptions.features.qr.view.ScanQrFragment
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
+import org.tokend.contoredemptions.features.scanner.model.RedeemableEntry
 import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.util.ObservableTransformers
 
-class ProcessRedemptionFragment : BaseFragment() {
+class ProcessRedeeemableFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.layout_fragment_container, container, false)
     }
@@ -29,7 +31,7 @@ class ProcessRedemptionFragment : BaseFragment() {
     }
 
     private fun toScan(error: String? = null) {
-        val fragment = ScanRedemptionFragment().apply {
+        val fragment = ScanRedeemableFragment().apply {
             arguments = ScanQrFragment.getBundle(error)
         }
 
@@ -37,7 +39,7 @@ class ProcessRedemptionFragment : BaseFragment() {
                 .result
                 .compose(ObservableTransformers.defaultSchedulersSingle())
                 .subscribeBy(
-                        onSuccess = this::confirmRedemptionAndStartScan,
+                        onSuccess = this::confirmRedeemableAndStartScan,
                         onError = this::onRedemptionProcessingError
                 )
                 .addTo(compositeDisposable)
@@ -56,7 +58,14 @@ class ProcessRedemptionFragment : BaseFragment() {
         displayFragment(fragment)
     }
 
-    private fun confirmRedemptionAndStartScan(request: RedemptionRequest) {
+    private fun confirmRedeemableAndStartScan(redeemable: RedeemableEntry) {
+        when (redeemable) {
+            is RedeemableEntry.RedemptionRequest -> confirmRedemptionRequest(redeemable.request)
+            is RedeemableEntry.Booking -> confirmBooking(redeemable.booking)
+        }
+    }
+
+    private fun confirmRedemptionRequest(request: RedemptionRequest) {
         val networkParams = repositoryProvider
                 .systemInfo()
                 .item
@@ -71,6 +80,13 @@ class ProcessRedemptionFragment : BaseFragment() {
         Navigator.from(this).openAcceptRedemption(
                 request.serialize(networkParams),
                 CONFIRM_REDEMPTION_REQUEST
+        )
+    }
+
+    private fun confirmBooking(bookingRecord: BookingRecord) {
+        Navigator.from(this).openBookingDetails(
+                bookingRecord,
+                VIEW_BOOKING_DETAILS_REQUEST
         )
     }
 
@@ -95,12 +111,14 @@ class ProcessRedemptionFragment : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CONFIRM_REDEMPTION_REQUEST) {
+        if (requestCode == CONFIRM_REDEMPTION_REQUEST ||
+                requestCode == VIEW_BOOKING_DETAILS_REQUEST) {
             toScan()
         }
     }
 
     private companion object {
         private val CONFIRM_REDEMPTION_REQUEST = "confirm_redemption".hashCode() and 0xfff
+        private val VIEW_BOOKING_DETAILS_REQUEST = "view_booking".hashCode() and 0xfff
     }
 }

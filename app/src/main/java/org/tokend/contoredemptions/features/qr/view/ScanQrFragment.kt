@@ -217,7 +217,7 @@ abstract class ScanQrFragment<ResultType : Any> : BaseFragment() {
      * or throws [Exception] with message that will be
      * displayed below the scanner viewfinder
      */
-    abstract fun getResult(content: String): Single<ResultType>
+    abstract fun getResult(content: String): Single<out ResultType>
 
     companion object {
         private const val ERROR_DURATION_MS = 1500L

@@ -69,8 +69,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0-alpha09'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
 
-    implementation "org.tokend:sdk:2.6.1-x.22"
-    implementation "org.tokend:rx-sdk:2.0.0"
+    implementation "org.tokend:sdk:3.3.3-x.1"
+    implementation "org.tokend:rx-sdk:2.2.0"
 
     implementation 'io.reactivex.rxjava2:rxkotlin:2.0.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
