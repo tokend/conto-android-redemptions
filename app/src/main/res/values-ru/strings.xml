@@ -28,7 +28,7 @@
     <string name="redemptions_history">История</string>
     <string name="enable_flash_action">Отключить вспышку</string>
     <string name="disable_flash_action">Включить вспышку</string>
-    <string name="redemption_scan_title">Отсканируйте QR код запроса на погашение</string>
+    <string name="redemption_scan_title">Отсканируйте погашаемый QR код</string>
     <string name="camera_permission_required_hint">Требуется разрешение на доступ к камере</string>
     <string name="open_permission_settings">Открыть настройки</string>
     <string name="template_error_redemption_not_own_asset">\"%1$s\" не принадлежит вашей компании</string>

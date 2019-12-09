@@ -28,7 +28,7 @@
     <string name="redemptions_history">Історія</string>
     <string name="enable_flash_action">Увімкнути ліхтар</string>
     <string name="disable_flash_action">Вимкнути ліхтар</string>
-    <string name="redemption_scan_title">Відскануйте QR код запиту погашення</string>
+    <string name="redemption_scan_title">Відскануйте QR код для погашення</string>
     <string name="camera_permission_required_hint">Потрібен дозвіл на використання камери</string>
     <string name="open_permission_settings">Відкрити налаштування</string>
     <string name="template_error_redemption_not_own_asset">\"%1$s\" не належить вашій компанії</string>

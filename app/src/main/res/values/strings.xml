@@ -27,7 +27,7 @@
     <string name="redemptions_history">History</string>
     <string name="enable_flash_action">Turn on flashlight</string>
     <string name="disable_flash_action">Turn off flashlight</string>
-    <string name="redemption_scan_title">Scan redemption request QR code</string>
+    <string name="redemption_scan_title">Scan redeemable QR code</string>
     <string name="camera_permission_required_hint">Camera permission is required</string>
     <string name="open_permission_settings">Open settings</string>
     <string name="template_error_redemption_not_own_asset">\"%1$s\" is not owned by your company</string>
