@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="seats">
+        <item quantity="one">%1$d місце</item>
+        <item quantity="few">%1$d місця</item>
+        <item quantity="many">%1$d місць</item>
+    </plurals>
+</resources>

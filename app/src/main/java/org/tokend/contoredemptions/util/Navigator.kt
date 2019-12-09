@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 import org.tokend.contoredemptions.R
+import org.tokend.contoredemptions.features.booking.model.BookingRecord
+import org.tokend.contoredemptions.features.booking.view.BookingDetailsActivity
 import org.tokend.contoredemptions.features.companies.view.CompaniesActivity
 import org.tokend.contoredemptions.features.dashboard.view.DashboardActivity
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
@@ -128,5 +130,12 @@ class Navigator private constructor() {
         context?.intentFor<RedemptionDetailsActivity>()
                 ?.putExtras(RedemptionDetailsActivity.getBundle(redemption))
                 ?.also { performIntent(it) }
+    }
+
+    fun openBookingDetails(bookingRecord: BookingRecord,
+                           requestCode: Int = 0) {
+        context?.intentFor<BookingDetailsActivity>()
+                ?.putExtras(BookingDetailsActivity.getBundle(bookingRecord))
+                ?.also { performIntent(it, requestCode = requestCode) }
     }
 }

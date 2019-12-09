@@ -39,10 +39,18 @@
     <string name="error_redemption_request_no_more_valid">Погашение уже выполнено, запрос недействителен</string>
     <string name="template_balance_change_by_account">От %1$s</string>
     <string name="no_redemptions_yet">История пуста</string>
-    <string name="redemption_account">Аккаунт</string>
+    <string name="account">Аккаунт</string>
     <string name="redemption_company">Компания</string>
     <string name="loading_data">Загрузка…</string>
     <string name="error">Ошибка</string>
+    <string name="booking">Бронирование</string>
+    <string name="booking_room">Комната</string>
+    <string name="time_from">С</string>
+    <string name="time_until">До</string>
+    <string name="booking_state">Статус</string>
+    <string name="booking_state_waiting_for_payment">Ожидается оплата</string>
+    <string name="booking_state_canceled">Отменено</string>
+    <string name="booking_state_expired">Срок истек</string>
     <string-array name="months">
         <item>Январь</item>
         <item>Февраль</item>

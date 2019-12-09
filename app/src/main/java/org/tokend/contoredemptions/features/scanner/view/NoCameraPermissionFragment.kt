@@ -1,4 +1,4 @@
-package org.tokend.contoredemptions.features.redemption.view
+package org.tokend.contoredemptions.features.scanner.view
 
 import android.content.Intent
 import android.net.Uri

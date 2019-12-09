@@ -81,7 +81,7 @@ class RedemptionDetailsActivity : BaseActivity() {
         adapter.addData(
                 DetailsItem(
                         icon = ContextCompat.getDrawable(this, R.drawable.ic_account),
-                        hint = getString(R.string.redemption_account),
+                        hint = getString(R.string.account),
                         text = redemption.sourceAccount.nickname
                                 ?: accountIdFormatter.formatShort(redemption.sourceAccount.id)
                 )

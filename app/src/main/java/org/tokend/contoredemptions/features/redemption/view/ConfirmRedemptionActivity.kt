@@ -187,7 +187,7 @@ class ConfirmRedemptionActivity : BaseActivity() {
                         else
                             senderEmail
                                     ?: AccountIdFormatter().formatShort(request.sourceAccountId),
-                        hint = getString(R.string.redemption_account),
+                        hint = getString(R.string.account),
                         icon = ContextCompat.getDrawable(this, R.drawable.ic_account),
                         singleLineText = true
                 )

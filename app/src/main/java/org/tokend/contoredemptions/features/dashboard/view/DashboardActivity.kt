@@ -140,7 +140,7 @@ class DashboardActivity : BaseActivity() {
 
     private fun displayFragment(id: Int) {
         when (id) {
-            R.id.scan -> displayFragment(fragmentFactory.getProcessRedemptionFragment())
+            R.id.scan -> displayFragment(fragmentFactory.getProcessRedeemableFragment())
             R.id.history -> displayFragment(fragmentFactory.getHistoryFragment())
             else -> Log.e("Dashboard", "Unknown screen ID")
         }
