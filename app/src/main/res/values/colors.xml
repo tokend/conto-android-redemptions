@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#c2185b</color>
-    <color name="colorPrimaryDark">#8c0032</color>
-    <color name="colorAccent">#d81b60</color>
+    <color name="colorPrimary">#f9a825</color>
+    <color name="colorPrimaryDark">#f9a825</color>
+    <color name="colorAccent">#f9a825</color>
     <color name="background">#ffffff</color>
     <color name="icons">#757575</color>
     <color name="ok">#3fa595</color>
@@ -18,4 +18,5 @@
     <color name="floating_view_background">#3e000000</color>
     <color name="zxing_viewfinder_mask">@android:color/transparent</color>
     <color name="qr_scanner_overlay_background">#E6FFFFFF</color>
+    <color name="launcherIconBackground">#FFD90A</color>
 </resources>

@@ -12,13 +12,13 @@ ext {
     // ----- Network params -----
 
     // API URL - TokenD instance root URL
-    api_url = 'https://api.staging.conto.me'
+    api_url = 'https://api.kharkiv.unit.community'
 
     // Storage URL - Root URL of file storage
-    storage_url = 'https://s3.eu-north-1.amazonaws.com/contostaging-identity-storage-festive-cannon-2'
+    storage_url = 'https://s3.eu-north-1.amazonaws.com/unitcitykharkiv-identity-storage-epic-carson'
 
     // Client URL - URL of the related web-client
-    client_url = 'https://staging.conto.me/'
+    client_url = 'https://kharkiv.unit.community'
 
     //Allow to log request and response information.
     logs_enabled = true
