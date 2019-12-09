@@ -127,7 +127,12 @@ class RedemptionRequest(
                             ByteArray(32).also { stream.read(it) }
                         ),
                         assetCode = String(
-                            ByteArray(stream.readInt()).also { stream.read(it) },
+                            ByteArray(
+                                stream.readInt()
+                                .also { length ->
+                                    require(length <= 32) { "Asset code length is too big" }
+                                }
+                            ).also { stream.read(it) },
                             STRING_CHARSET
                         ),
                         amount = networkParams.amountFromPrecised(stream.readLong()),
@@ -140,7 +145,11 @@ class RedemptionRequest(
                             hint = XdrByteArrayFixed4(
                                 ByteArray(4).also { stream.read(it) }
                             ),
-                            signature = ByteArray(stream.available()).also { stream.read(it) }
+                            signature = ByteArray(
+                                stream.available().also { length ->
+                                    require(length <= 2048) { "Signature length is too big" }
+                                }
+                            ).also { stream.read(it) }
                         )
                     )
                 }
