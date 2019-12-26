@@ -2,10 +2,10 @@ ext {
     // ----- Android params -----
 
     // Application ID - unique identifier of the app in Google Play and on user's device
-    version_name = '1.0.0'
+    version_name = '1.1.1'
     // Version Code - code number for version,
     // must be incremented after each release
-    version_code = 2
+    version_code = 4
 
     // --------------------------
 
