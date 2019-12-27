@@ -14,7 +14,7 @@ import org.tokend.wallet.Base32Check
 import org.tokend.wallet.xdr.Operation
 import org.tokend.wallet.xdr.PaymentOp
 import org.tokend.wallet.xdr.PublicKey
-import org.tokend.wallet.xdr.Transaction
+import org.tokend.wallet.xdr.TransactionEnvelope
 import org.tokend.wallet.xdr.utils.XdrDataInputStream
 import java.io.ByteArrayInputStream
 import java.io.Closeable
@@ -28,14 +28,14 @@ class PosTerminal(
         Thread(it).apply { name = "PosCommunicationThread" }
     }
 
-    private lateinit var transactionsSubject: SingleSubject<Transaction>
+    private lateinit var transactionsSubject: SingleSubject<TransactionEnvelope>
     private var currentPaymentRequest: PosPaymentRequest? = null
 
     init {
         subscribeToConnections()
     }
 
-    fun requestPayment(posPaymentRequest: PosPaymentRequest): Single<Transaction> {
+    fun requestPayment(posPaymentRequest: PosPaymentRequest): Single<TransactionEnvelope> {
         currentPaymentRequest = posPaymentRequest
         transactionsSubject = SingleSubject.create()
         return transactionsSubject
@@ -60,6 +60,7 @@ class PosTerminal(
             connection.open()
             beginCommunication(connection, currentRequest)
         } catch (e: Exception) {
+            e.printStackTrace()
             sendCommand(connection, PosToClientCommand.Error)
         } finally {
             try {
@@ -91,34 +92,40 @@ class PosTerminal(
             paymentTransactionResponse: ClientToPosResponse.PaymentTransaction,
             relatedRequest: PosPaymentRequest
     ) {
-        val transaction = Transaction.fromXdr(XdrDataInputStream(
-                ByteArrayInputStream(paymentTransactionResponse.transactionXdr)))
+        val envelope = TransactionEnvelope.fromXdr(XdrDataInputStream(
+                ByteArrayInputStream(paymentTransactionResponse.transactionEnvelopeXdr)))
 
-        val paymentOp =
-                transaction.operations
-                        .find { it.body is Operation.OperationBody.Payment }
-                        ?.let { it.body as Operation.OperationBody.Payment }
-                        ?.paymentOp
-                        ?: throw IllegalStateException("Received transaction has no payments")
+        val paymentOp = envelope
+                .tx
+                .operations
+                .find { it.body is Operation.OperationBody.Payment }
+                ?.let { it.body as Operation.OperationBody.Payment }
+                ?.paymentOp
+                ?: throw IllegalStateException("Received transaction has no payments")
 
         val reference = paymentOp.reference.decodeHex()
-        require(reference.contentEquals(relatedRequest.reference))
+        if (!reference.contentEquals(relatedRequest.reference)) {
+            throw IllegalStateException("Reference mismatch")
+        }
 
         val amount = paymentOp.amount
-        require(amount == relatedRequest.precisedAmount)
+        if (amount != relatedRequest.precisedAmount) {
+            throw IllegalStateException("Amount mismatch")
+        }
 
-        val destinationBalanceId =
-                (paymentOp.destination as? PaymentOp.PaymentOpDestination.Balance)
-                        ?.balanceID
-                        ?.let { it as? PublicKey.KeyTypeEd25519 }
-                        ?.ed25519
-                        ?.wrapped
-                        ?: throw IllegalStateException("Invalid payment destination type")
-        require(destinationBalanceId.contentEquals(
-                Base32Check.decodeAccountId(relatedRequest.destinationBalanceId)))
+        val destinationBalanceId = (paymentOp.destination as? PaymentOp.PaymentOpDestination.Balance)
+                ?.balanceID
+                ?.let { it as? PublicKey.KeyTypeEd25519 }
+                ?.ed25519
+                ?.wrapped
+                ?: throw IllegalStateException("Invalid payment destination type")
+        if (!destinationBalanceId.contentEquals(
+                Base32Check.decodeBalanceId(relatedRequest.destinationBalanceId))) {
+            throw IllegalStateException("Destination mismatch")
+        }
 
         currentPaymentRequest
-        transactionsSubject.onSuccess(transaction)
+        transactionsSubject.onSuccess(envelope)
 
         sendCommand(connection, PosToClientCommand.Ok)
     }
@@ -137,6 +144,6 @@ class PosTerminal(
     }
 
     companion object {
-        private val AID = byteArrayOf()
+        private val AID = byteArrayOf(0xF0.toByte(), 0x42, 0x42, 0x42)
     }
 }

@@ -1,6 +1,12 @@
 package org.tokend.contoredemptions.features.pos.model
 
 sealed class ClientToPosResponse {
+    object Empty: ClientToPosResponse() {
+        fun isIt(responseBytes: ByteArray) = responseBytes.isEmpty()
+
+        override val data = byteArrayOf()
+    }
+
     object Ok : ClientToPosResponse() {
         private val HEADER = byteArrayOf(0x20)
         fun isIt(responseBytes: ByteArray) = responseBytes.contentEquals(HEADER)
@@ -15,8 +21,8 @@ sealed class ClientToPosResponse {
         override val data = HEADER
     }
 
-    class PaymentTransaction(val transactionXdr: ByteArray) : ClientToPosResponse() {
-        override val data = HEADER + transactionXdr
+    class PaymentTransaction(val transactionEnvelopeXdr: ByteArray) : ClientToPosResponse() {
+        override val data = HEADER + transactionEnvelopeXdr
 
         companion object {
             private val HEADER = byteArrayOf(0x22)
@@ -29,7 +35,7 @@ sealed class ClientToPosResponse {
 
             fun fromBytes(responseBytes: ByteArray): PaymentTransaction {
                 return PaymentTransaction(
-                        transactionXdr = responseBytes.sliceArray(HEADER.size until responseBytes.size)
+                        transactionEnvelopeXdr = responseBytes.sliceArray(HEADER.size until responseBytes.size)
                 )
             }
         }
@@ -40,6 +46,7 @@ sealed class ClientToPosResponse {
     companion object {
         fun fromBytes(responseBytes: ByteArray): ClientToPosResponse {
             return when {
+                Empty.isIt(responseBytes) -> Empty
                 Ok.isIt(responseBytes) -> Ok
                 NoData.isIt(responseBytes) -> NoData
                 PaymentTransaction.isIt(responseBytes) -> PaymentTransaction.fromBytes(responseBytes)
