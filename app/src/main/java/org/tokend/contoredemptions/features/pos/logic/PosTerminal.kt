@@ -19,26 +19,54 @@ import org.tokend.wallet.xdr.utils.XdrDataInputStream
 import java.io.ByteArrayInputStream
 import java.io.Closeable
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.TimeUnit
 
+/**
+ * Accepts payments from clients over NFC.
+ *
+ * @see requestPayment
+ */
 class PosTerminal(
         private val reader: NfcReader
 ) : Closeable {
+    private class ActiveCommunicationThreadData(
+            val connection: NfcConnection,
+            val future: Future<*>,
+            val startedAt: Long = System.currentTimeMillis()
+    )
+
     private val compositeDisposable = CompositeDisposable()
-    private val executorService = Executors.newCachedThreadPool {
-        Thread(it).apply { name = "PosCommunicationThread" }
-    }
+    private val executorService = Executors.newScheduledThreadPool(4, object : ThreadFactory {
+        private var i = 1
+        override fun newThread(r: Runnable?) =
+                Thread(r).apply { name = "PosCommunicationThread-${i++}" }
+    })
+    private val activeCommunicationThreads = mutableSetOf<ActiveCommunicationThreadData>()
 
     private lateinit var transactionsSubject: SingleSubject<TransactionEnvelope>
     private var currentPaymentRequest: PosPaymentRequest? = null
 
     init {
         subscribeToConnections()
+        scheduleThreadsCleanup()
     }
 
-    fun requestPayment(posPaymentRequest: PosPaymentRequest): Single<TransactionEnvelope> {
-        currentPaymentRequest = posPaymentRequest
+    /**
+     * Requires connected clients to craft transaction satisfying provided [paymentRequest].
+     * Only one payment is accepted.
+     */
+    fun requestPayment(paymentRequest: PosPaymentRequest): Single<TransactionEnvelope> {
+        currentPaymentRequest = paymentRequest
         transactionsSubject = SingleSubject.create()
         return transactionsSubject
+    }
+
+    private fun scheduleThreadsCleanup() {
+        executorService.scheduleAtFixedRate({
+            cleanUpThreads()
+        }, 0, 2, TimeUnit.SECONDS)
     }
 
     private fun subscribeToConnections() {
@@ -49,13 +77,17 @@ class PosTerminal(
     }
 
     private fun onNewConnection(connection: NfcConnection) {
-        executorService.submit { communicate(connection) }
-    }
-
-    private fun communicate(connection: NfcConnection) {
         val currentRequest = this.currentPaymentRequest
                 ?: return
 
+        val future = executorService.submit { communicate(connection, currentRequest) }
+        activeCommunicationThreads.add(
+                ActiveCommunicationThreadData(connection, future)
+        )
+    }
+
+    private fun communicate(connection: NfcConnection,
+                            currentRequest: PosPaymentRequest) {
         try {
             connection.open()
             beginCommunication(connection, currentRequest)
@@ -120,11 +152,11 @@ class PosTerminal(
                 ?.wrapped
                 ?: throw IllegalStateException("Invalid payment destination type")
         if (!destinationBalanceId.contentEquals(
-                Base32Check.decodeBalanceId(relatedRequest.destinationBalanceId))) {
+                        Base32Check.decodeBalanceId(relatedRequest.destinationBalanceId))) {
             throw IllegalStateException("Destination mismatch")
         }
 
-        currentPaymentRequest
+        currentPaymentRequest = null
         transactionsSubject.onSuccess(envelope)
 
         sendCommand(connection, PosToClientCommand.Ok)
@@ -138,6 +170,28 @@ class PosTerminal(
         return ClientToPosResponse.fromBytes(responseBytes)
     }
 
+    /**
+     * Frees threads which are held by closed connection or just running for too long.
+     */
+    private fun cleanUpThreads() {
+        val now = System.currentTimeMillis()
+        val iterator = activeCommunicationThreads.iterator()
+        while (iterator.hasNext()) {
+            val current = iterator.next()
+
+            val isExpired = now - current.startedAt >= COMMUNICATION_TIMEOUT_SECONDS * 1000L
+            val isJustStarted = now == current.startedAt
+            val connectionIsClosed = !current.connection.isActive
+
+            if (!isJustStarted && (connectionIsClosed || isExpired)) {
+                current.future.cancel(true)
+            }
+            if (current.future.isCancelled || current.future.isDone) {
+                iterator.remove()
+            }
+        }
+    }
+
     override fun close() {
         compositeDisposable.dispose()
         executorService.shutdownNow()
@@ -145,5 +199,6 @@ class PosTerminal(
 
     companion object {
         private val AID = byteArrayOf(0xF0.toByte(), 0x42, 0x42, 0x42)
+        private const val COMMUNICATION_TIMEOUT_SECONDS = 10
     }
 }

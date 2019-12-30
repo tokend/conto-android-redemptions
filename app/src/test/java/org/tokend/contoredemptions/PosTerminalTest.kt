@@ -58,7 +58,8 @@ class PosTerminalTest {
                         }
                         val paymentRequest = command.request
                         ClientToPosResponse.PaymentTransaction(
-                                getTransactionForRequest(paymentRequest)).data
+                                getTransactionForRequest(paymentRequest)
+                        ).data
                     }
                     is PosToClientCommand.Error -> throw IllegalStateException("Error received")
                     else -> byteArrayOf()
@@ -200,20 +201,26 @@ class PosTerminalTest {
 
         return TransactionBuilder(NetworkParams("Passphrase"), account.accountId)
                 .addSigner(account)
-                .addOperation(Operation.OperationBody.Payment(PaymentOp(
-                        destination = PaymentOp.PaymentOpDestination.Balance(
-                                PublicKeyFactory.fromBalanceId(request.destinationBalanceId)
-                        ),
-                        reference = request.reference.encodeHexString(),
-                        amount = request.precisedAmount,
-                        subject = "",
-                        sourceBalanceID = PublicKeyFactory.fromBalanceId(balanceId),
-                        feeData = PaymentFeeData(Fee(0, 0, Fee.FeeExt.EmptyVersion()),
-                                Fee(0, 0, Fee.FeeExt.EmptyVersion()),
-                                false,
-                                PaymentFeeData.PaymentFeeDataExt.EmptyVersion()),
-                        ext = PaymentOp.PaymentOpExt.EmptyVersion()
-                )))
+                .addOperation(
+                        Operation.OperationBody.Payment(
+                                PaymentOp(
+                                        destination = PaymentOp.PaymentOpDestination.Balance(
+                                                PublicKeyFactory.fromBalanceId(request.destinationBalanceId)
+                                        ),
+                                        reference = request.reference.encodeHexString(),
+                                        amount = request.precisedAmount,
+                                        subject = "",
+                                        sourceBalanceID = PublicKeyFactory.fromBalanceId(balanceId),
+                                        feeData = PaymentFeeData(
+                                                Fee(0, 0, Fee.FeeExt.EmptyVersion()),
+                                                Fee(0, 0, Fee.FeeExt.EmptyVersion()),
+                                                false,
+                                                PaymentFeeData.PaymentFeeDataExt.EmptyVersion()
+                                        ),
+                                        ext = PaymentOp.PaymentOpExt.EmptyVersion()
+                                )
+                        )
+                )
                 .build()
                 .getEnvelope()
                 .toBase64()
