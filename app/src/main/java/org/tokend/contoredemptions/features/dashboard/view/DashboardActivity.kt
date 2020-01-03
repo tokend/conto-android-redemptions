@@ -2,6 +2,7 @@ package org.tokend.contoredemptions.features.dashboard.view
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -16,13 +17,13 @@ import kotlinx.android.synthetic.main.toolbar.*
 import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseActivity
+import org.tokend.contoredemptions.features.history.view.RedemptionsFragment
+import org.tokend.contoredemptions.features.pos.view.PosTerminalFragment
+import org.tokend.contoredemptions.features.scanner.view.ProcessRedeeemableFragment
 import org.tokend.contoredemptions.util.Navigator
-import org.tokend.contoredemptions.view.util.FragmentFactory
 import org.tokend.contoredemptions.view.util.LogoUtil
 
 class DashboardActivity : BaseActivity() {
-
-    private val fragmentFactory = FragmentFactory()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,12 +90,18 @@ class DashboardActivity : BaseActivity() {
         }
 
         bottom_tabs.selectedItemId = R.id.scan
+
+        val isNfcAvailable = packageManager.hasSystemFeature(PackageManager.FEATURE_NFC)
+        if (!isNfcAvailable) {
+            bottom_tabs.menu.removeItem(R.id.terminal)
+        }
     }
 
     private fun displayFragment(id: Int) {
         when (id) {
-            R.id.scan -> displayFragment(fragmentFactory.getProcessRedeemableFragment())
-            R.id.history -> displayFragment(fragmentFactory.getHistoryFragment())
+            R.id.scan -> displayFragment(ProcessRedeeemableFragment.newInstance())
+            R.id.history -> displayFragment(RedemptionsFragment.newInstance())
+            R.id.terminal -> displayFragment(PosTerminalFragment.newInstance())
             else -> Log.e("Dashboard", "Unknown screen ID")
         }
     }

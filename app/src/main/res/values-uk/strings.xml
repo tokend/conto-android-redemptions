@@ -30,7 +30,7 @@
     <string name="disable_flash_action">Вимкнути ліхтар</string>
     <string name="redemption_scan_title">Відскануйте QR код для погашення</string>
     <string name="camera_permission_required_hint">Потрібен дозвіл на використання камери</string>
-    <string name="open_permission_settings">Відкрити налаштування</string>
+    <string name="open_settings">Відкрити налаштування</string>
     <string name="template_error_redemption_not_own_asset">\"%1$s\" не належить вашій компанії</string>
     <string name="processing_progress">Обробка…</string>
     <string name="operation_redemption">Погашення</string>
@@ -51,6 +51,11 @@
     <string name="booking_state_waiting_for_payment">Очікується оплата</string>
     <string name="booking_state_canceled">Скасовано</string>
     <string name="booking_state_expired">Термін вийшов</string>
+    <string name="pos_terminal">Термінал</string>
+    <string name="enable_nfc_to_use_this_feature_hint">Увімкніть NFC для користування цією функцєю</string>
+    <string name="asset">Актив</string>
+    <string name="receive_payment">Прийняти платіж</string>
+    <string name="error_no_assets">Активи не знайдено</string>
     <string-array name="months">
         <item>Січень</item>
         <item>Лютий</item>

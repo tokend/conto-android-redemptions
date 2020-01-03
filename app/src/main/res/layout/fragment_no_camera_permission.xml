@@ -36,6 +36,6 @@
             android:layout_marginTop="@dimen/half_standard_margin"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_dialog"
-            android:text="@string/open_permission_settings"/>
+            android:text="@string/open_settings"/>
 
 </LinearLayout>

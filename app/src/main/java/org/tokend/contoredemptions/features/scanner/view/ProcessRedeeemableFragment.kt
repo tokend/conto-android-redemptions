@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
@@ -24,11 +22,15 @@ import org.tokend.contoredemptions.features.scanner.model.RedeemableEntry
 import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.util.ProgressDialogFactory
+import org.tokend.contoredemptions.view.util.UserFlowFragmentDisplayer
 import java.util.concurrent.TimeUnit
 
 class ProcessRedeeemableFragment : BaseFragment() {
     private lateinit var nfcReader: NfcReader
     private lateinit var nfcRedemptionRequestsReader: NfcRedemptionRequestsReader
+
+    private val fragmentDisplayer =
+            UserFlowFragmentDisplayer(this, R.id.fragment_container)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.layout_fragment_container, container, false)
@@ -56,7 +58,7 @@ class ProcessRedeeemableFragment : BaseFragment() {
                 )
                 .addTo(compositeDisposable)
 
-        displayFragment(fragment)
+        fragmentDisplayer.display(fragment, "scan", true)
     }
 
     private fun toCameraPermissionError() {
@@ -67,7 +69,7 @@ class ProcessRedeeemableFragment : BaseFragment() {
                 .subscribeBy { this.toScan() }
                 .addTo(compositeDisposable)
 
-        displayFragment(fragment)
+        fragmentDisplayer.display(fragment, "camera_permission", true)
     }
 
     private fun confirmRedeemableAndStartScan(redeemable: RedeemableEntry) {
@@ -111,14 +113,6 @@ class ProcessRedeeemableFragment : BaseFragment() {
             }
         }
         errorLogger.log(error)
-    }
-
-    private fun displayFragment(fragment: Fragment) {
-        childFragmentManager.beginTransaction()
-                .disallowAddToBackStack()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.fragment_container, fragment)
-                .commit()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -183,8 +177,10 @@ class ProcessRedeeemableFragment : BaseFragment() {
         nfcRedemptionRequestsReader.close()
     }
 
-    private companion object {
+    companion object {
         private val CONFIRM_REDEMPTION_REQUEST = "confirm_redemption".hashCode() and 0xfff
         private val VIEW_BOOKING_DETAILS_REQUEST = "view_booking".hashCode() and 0xfff
+
+        fun newInstance() = ProcessRedeeemableFragment()
     }
 }

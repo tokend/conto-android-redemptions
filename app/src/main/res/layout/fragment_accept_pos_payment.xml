@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        style="@style/LimitedMatchParentWidthConstraint">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include layout="@layout/include_error_empty_view" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingRight="@dimen/double_margin"
+                android:paddingLeft="@dimen/double_margin">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/double_margin"
+                    android:text="@string/receive_payment"
+                    android:textSize="@dimen/text_size_lead" />
+
+                <FrameLayout
+                    android:id="@+id/asset_picker_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/asset_name_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8sp"
+                        android:background="@drawable/rounded_stroke_field_background"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:paddingLeft="@dimen/half_standard_padding"
+                        android:paddingTop="@dimen/standard_margin"
+                        android:paddingRight="@dimen/half_standard_padding"
+                        android:paddingBottom="@dimen/standard_margin"
+                        android:textSize="16sp"
+                        tools:text="My awesome Asset" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginTop="6sp"
+                        android:layout_marginEnd="@dimen/half_standard_margin"
+                        android:layout_marginRight="@dimen/half_standard_margin"
+                        app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+                    <TextView
+                        style="@style/HintText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/half_standard_margin"
+                        android:layout_marginLeft="@dimen/half_standard_margin"
+                        android:background="@color/background"
+                        android:paddingStart="@dimen/quarter_standard_margin"
+                        android:paddingEnd="@dimen/quarter_standard_margin"
+                        android:text="@string/asset" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
