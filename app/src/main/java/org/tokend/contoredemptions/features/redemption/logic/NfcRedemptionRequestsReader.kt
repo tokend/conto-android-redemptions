@@ -1,14 +1,15 @@
 package org.tokend.contoredemptions.features.redemption.logic
 
-import android.app.Activity
-import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.nfc.tech.IsoDep
-import android.os.Build
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.PublishSubject
+import org.tokend.contoredemptions.features.nfc.logic.NfcConnection
+import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.sdk.utils.extentions.decodeHex
+import java.io.Closeable
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Reads redemption requests broadcasted over NFC if it's available
@@ -16,59 +17,46 @@ import java.util.concurrent.Executors
  * @see readRequests
  */
 class NfcRedemptionRequestsReader(
-        private val activity: Activity
-) {
-    private val adapter: NfcAdapter? = NfcAdapter.getDefaultAdapter(activity)
-
+        private val nfcReader: NfcReader
+) : Closeable {
+    private val compositeDisposable = CompositeDisposable()
     private val readRequestsSubject: PublishSubject<ByteArray> = PublishSubject.create()
     val readRequests: Observable<ByteArray> = readRequestsSubject
 
     private val executorService = Executors.newCachedThreadPool()
 
-    fun startReadingIfAvailable() {
-        if (adapter == null
-                || !adapter.isEnabled
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            return
-        }
-
-        adapter.enableReaderMode(
-                activity,
-                this::onTagDiscovered,
-                NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
-                null
-        )
+    init {
+        subscribeToConnections()
     }
 
-    fun stopReading() {
-        if (adapter == null
-                || !adapter.isEnabled
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            return
-        }
-
-        adapter.disableReaderMode(activity)
+    private fun subscribeToConnections() {
+        nfcReader
+                .connections
+                .debounce(500, TimeUnit.SECONDS)
+                .subscribeBy(
+                        onNext = this::onNewConnection,
+                        onError = {}
+                )
     }
 
-    private fun onTagDiscovered(tag: Tag) {
+    private fun onNewConnection(connection: NfcConnection) {
         executorService.submit {
             try {
-                val tagIsoDep = IsoDep.get(tag)!!
-                readRequestThroughIsoDep(tagIsoDep)
+                readRedemptionRequest(connection)
             } catch (_: Exception) {
             }
         }
     }
 
-    private fun readRequestThroughIsoDep(isoDep: IsoDep) {
+    private fun readRedemptionRequest(connection: NfcConnection) {
         val response: ByteArray? = try {
-            isoDep.connect()
-            isoDep.transceive(SELECT_AID_HEADER + AID.size.toByte() + AID)
+            connection.open()
+            connection.transceive(SELECT_AID_HEADER + AID.size.toByte() + AID)
         } catch (e: Exception) {
             e.printStackTrace()
             null
         } finally {
-            isoDep.close()
+            connection.close()
         }
 
         if (response == null
@@ -79,6 +67,11 @@ class NfcRedemptionRequestsReader(
         }
 
         readRequestsSubject.onNext(response.sliceArray(1 until response.size))
+    }
+
+    override fun close() {
+        compositeDisposable.dispose()
+        executorService.shutdownNow()
     }
 
     companion object {

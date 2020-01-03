@@ -5,7 +5,7 @@ import java.io.Closeable
 interface NfcConnection : Closeable {
     fun open()
 
-    fun transcieve(data: ByteArray): ByteArray
+    fun transceive(data: ByteArray): ByteArray
 
     val isActive: Boolean
 }

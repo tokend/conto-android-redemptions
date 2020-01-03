@@ -40,7 +40,7 @@ class PosTerminalTest {
 
             override fun close() {}
 
-            override fun transcieve(data: ByteArray): ByteArray {
+            override fun transceive(data: ByteArray): ByteArray {
                 i++
                 println("Received ${data.encodeHexString()}")
                 return when (val command = PosToClientCommand.fromBytes(data)) {
@@ -113,7 +113,7 @@ class PosTerminalTest {
 
             override fun close() {}
 
-            override fun transcieve(data: ByteArray): ByteArray {
+            override fun transceive(data: ByteArray): ByteArray {
                 println("Received ${data.encodeHexString()}")
                 return when (val command = PosToClientCommand.fromBytes(data)) {
                     is PosToClientCommand.SelectAid -> ClientToPosResponse.Ok.data
@@ -138,7 +138,7 @@ class PosTerminalTest {
 
             override fun close() {}
 
-            override fun transcieve(data: ByteArray): ByteArray {
+            override fun transceive(data: ByteArray): ByteArray {
                 println("Received ${data.encodeHexString()}")
                 return when (val command = PosToClientCommand.fromBytes(data)) {
                     is PosToClientCommand.SelectAid -> ClientToPosResponse.Ok.data

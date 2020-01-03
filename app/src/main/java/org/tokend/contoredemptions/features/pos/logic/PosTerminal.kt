@@ -166,7 +166,7 @@ class PosTerminal(
             connection: NfcConnection,
             command: PosToClientCommand
     ): ClientToPosResponse {
-        val responseBytes = connection.transcieve(command.data)
+        val responseBytes = connection.transceive(command.data)
         return ClientToPosResponse.fromBytes(responseBytes)
     }
 

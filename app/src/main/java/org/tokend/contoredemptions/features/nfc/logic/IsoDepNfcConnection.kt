@@ -7,7 +7,7 @@ class IsoDepNfcConnection(
 ) : NfcConnection {
     override fun open() = isoDep.connect()
 
-    override fun transcieve(data: ByteArray): ByteArray = isoDep.transceive(data)
+    override fun transceive(data: ByteArray): ByteArray = isoDep.transceive(data)
 
     override fun close() = isoDep.close()
 

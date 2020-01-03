@@ -7,25 +7,37 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseFragment
 import org.tokend.contoredemptions.features.booking.model.BookingRecord
+import org.tokend.contoredemptions.features.nfc.logic.NfcReader
+import org.tokend.contoredemptions.features.nfc.logic.SimpleNfcReader
 import org.tokend.contoredemptions.features.qr.model.NoCameraPermissionException
 import org.tokend.contoredemptions.features.qr.view.ScanQrFragment
+import org.tokend.contoredemptions.features.redemption.logic.DeserializeAndValidateRedemptionRequestUseCase
+import org.tokend.contoredemptions.features.redemption.logic.NfcRedemptionRequestsReader
 import org.tokend.contoredemptions.features.redemption.model.RedemptionRequest
 import org.tokend.contoredemptions.features.scanner.model.RedeemableEntry
 import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.util.ObservableTransformers
+import org.tokend.contoredemptions.view.util.ProgressDialogFactory
+import java.util.concurrent.TimeUnit
 
 class ProcessRedeeemableFragment : BaseFragment() {
+    private lateinit var nfcReader: NfcReader
+    private lateinit var nfcRedemptionRequestsReader: NfcRedemptionRequestsReader
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.layout_fragment_container, container, false)
     }
 
     override fun onInitAllowed() {
         repositoryProvider.systemInfo().updateIfNotFresh()
+
+        initNfcReader()
 
         toScan()
     }
@@ -115,6 +127,60 @@ class ProcessRedeeemableFragment : BaseFragment() {
                 requestCode == VIEW_BOOKING_DETAILS_REQUEST) {
             toScan()
         }
+    }
+
+    // region NFC
+    private fun initNfcReader() {
+        nfcReader = SimpleNfcReader(requireActivity())
+        nfcRedemptionRequestsReader = NfcRedemptionRequestsReader(nfcReader)
+        nfcRedemptionRequestsReader
+                .readRequests
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .compose(ObservableTransformers.defaultSchedulers())
+                .subscribeBy(
+                        onNext = this::onNfcRedemptionRequestRead,
+                        onError = {}
+                )
+                .addTo(compositeDisposable)
+    }
+
+    private fun onNfcRedemptionRequestRead(request: ByteArray) {
+        var disposable: Disposable? = null
+
+        val progress = ProgressDialogFactory.getDialog(requireContext(), R.string.processing_progress) {
+            disposable?.dispose()
+        }
+
+        disposable = DeserializeAndValidateRedemptionRequestUseCase(
+                request,
+                companyProvider.getCompany(),
+                repositoryProvider
+        )
+                .perform()
+                .compose(ObservableTransformers.defaultSchedulersSingle())
+                .map(RedeemableEntry::RedemptionRequest)
+                .doOnSubscribe { progress.show() }
+                .doOnEvent { _, _ -> progress.dismiss() }
+                .subscribeBy(
+                        onSuccess = this::confirmRedeemableAndStartScan,
+                        onError = { errorHandlerFactory.getDefault().handle(it) }
+                )
+    }
+    // endregion
+
+    override fun onResume() {
+        super.onResume()
+        nfcReader.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcReader.stop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        nfcRedemptionRequestsReader.close()
     }
 
     private companion object {
