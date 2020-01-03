@@ -78,7 +78,10 @@ class PosTerminal(
 
     private fun onNewConnection(connection: NfcConnection) {
         val currentRequest = this.currentPaymentRequest
-                ?: return
+
+        if (currentRequest == null || !transactionsSubject.hasObservers()) {
+            return
+        }
 
         val future = executorService.submit { communicate(connection, currentRequest) }
         activeCommunicationThreads.add(
