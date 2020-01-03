@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/dec_amount_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/minus_round_button" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/amount_edit_text"
+        style="@style/EditText.OneLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/double_margin"
+        android:layout_marginEnd="@dimen/double_margin"
+        android:background="@null"
+        android:gravity="end"
+        android:hint="0"
+        android:inputType="numberDecimal"
+        android:textColor="@color/primary_text"
+        android:textColorHint="@color/primary_text"
+        android:textSize="@dimen/text_size_amount_input" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/inc_amount_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/plus_round_button" />
+</merge>

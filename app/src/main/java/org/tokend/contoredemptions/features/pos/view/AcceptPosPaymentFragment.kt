@@ -36,6 +36,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
     override fun onInitAllowed() {
         initSwipeRefresh()
+        initAssetSelection()
 
         subscribeToAssets()
 
@@ -45,6 +46,10 @@ class AcceptPosPaymentFragment : BaseFragment() {
     private fun initSwipeRefresh() {
         swipe_refresh.setColorSchemeColors(ContextCompat.getColor(requireContext(), R.color.colorAccent))
         swipe_refresh.setOnRefreshListener { update(force = true) }
+    }
+
+    private fun initAssetSelection() {
+        
     }
 
     private fun subscribeToAssets() {
@@ -100,6 +105,9 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
     private fun onAssetChanged() {
         asset_name_text_view.text = asset?.name ?: asset?.code
+        asset?.trailingDigits?.also { assetTrailingDigits ->
+            payment_amount_view.amountWrapper.maxPlacesAfterComa = assetTrailingDigits
+        }
     }
 
     private fun update(force: Boolean = false) {

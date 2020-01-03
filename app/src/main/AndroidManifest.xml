@@ -34,7 +34,8 @@
         <activity
             android:name=".features.dashboard.view.DashboardActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
             android:name=".features.redemption.view.ConfirmRedemptionActivity"
             android:configChanges="orientation|screenSize"

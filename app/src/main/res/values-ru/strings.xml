@@ -54,8 +54,9 @@
     <string name="pos_terminal">Терминал</string>
     <string name="enable_nfc_to_use_this_feature_hint">Включите NFC для использования этой функции</string>
     <string name="asset">Актив</string>
-    <string name="receive_payment">Принять платеж</string>
+    <string name="accept_payment">Принять платеж</string>
     <string name="error_no_assets">Активы не найдены</string>
+    <string name="accept_payment_short">Принять</string>
     <string-array name="months">
         <item>Январь</item>
         <item>Февраль</item>
