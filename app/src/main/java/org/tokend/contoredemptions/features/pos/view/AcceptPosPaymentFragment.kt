@@ -20,7 +20,12 @@ class AcceptPosPaymentFragment : BaseFragment() {
         get() = repositoryProvider.assets()
 
     private val loadingIndicator = LoadingIndicatorManager(
-            showLoading = { swipe_refresh.isRefreshing = true },
+            showLoading = {
+                swipe_refresh.isRefreshing = true
+                if (assetsRepository.isNeverUpdated) {
+                    error_empty_view.showEmpty(R.string.loading_data)
+                }
+            },
             hideLoading = { swipe_refresh.isRefreshing = false }
     )
 
@@ -49,7 +54,9 @@ class AcceptPosPaymentFragment : BaseFragment() {
     }
 
     private fun initAssetSelection() {
-        
+        asset_picker_spinner.onItemSelected {
+            this.asset = it
+        }
     }
 
     private fun subscribeToAssets() {
@@ -57,9 +64,6 @@ class AcceptPosPaymentFragment : BaseFragment() {
                 .compose(ObservableTransformers.defaultSchedulers())
                 .subscribe { isLoading ->
                     loadingIndicator.setLoading(isLoading)
-                    if (assetsRepository.isNeverUpdated) {
-                        asset_name_text_view.text = getString(R.string.loading_data)
-                    }
                 }
                 .addTo(compositeDisposable)
 
@@ -92,19 +96,18 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
         val assets = assetsRepository.itemsList
                 .filter { it.ownerAccountId == company.id }
+                .sortedBy { it.name ?: it.code }
 
-        if (asset == null) {
-            val firstAsset = assets.firstOrNull()
-            if (firstAsset != null) {
-                asset = firstAsset
-            } else {
-                asset_name_text_view.text = getString(R.string.error_no_assets)
-            }
+        if (assets.isEmpty() && !assetsRepository.isNeverUpdated) {
+            error_empty_view.showEmpty(R.string.error_no_assets)
+        } else if (assets.isNotEmpty()){
+            error_empty_view.hide()
         }
+
+        asset_picker_spinner.setItems(assets)
     }
 
     private fun onAssetChanged() {
-        asset_name_text_view.text = asset?.name ?: asset?.code
         asset?.trailingDigits?.also { assetTrailingDigits ->
             payment_amount_view.amountWrapper.maxPlacesAfterComa = assetTrailingDigits
         }
