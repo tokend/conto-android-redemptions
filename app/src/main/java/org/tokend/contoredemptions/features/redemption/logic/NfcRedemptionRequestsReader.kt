@@ -2,6 +2,7 @@ package org.tokend.contoredemptions.features.redemption.logic
 
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.PublishSubject
 import org.tokend.contoredemptions.features.nfc.logic.NfcConnection
@@ -32,11 +33,12 @@ class NfcRedemptionRequestsReader(
     private fun subscribeToConnections() {
         nfcReader
                 .connections
-                .debounce(500, TimeUnit.SECONDS)
+                .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribeBy(
                         onNext = this::onNewConnection,
-                        onError = {}
+                        onError = { it.printStackTrace() }
                 )
+                .addTo(compositeDisposable)
     }
 
     private fun onNewConnection(connection: NfcConnection) {
