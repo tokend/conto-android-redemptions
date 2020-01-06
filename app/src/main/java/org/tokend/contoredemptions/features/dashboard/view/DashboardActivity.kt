@@ -24,6 +24,7 @@ import org.tokend.contoredemptions.util.Navigator
 import org.tokend.contoredemptions.view.util.LogoUtil
 
 class DashboardActivity : BaseActivity() {
+    private var currentFragmentId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,11 +99,22 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun displayFragment(id: Int) {
-        when (id) {
-            R.id.scan -> displayFragment(ProcessRedeeemableFragment.newInstance())
-            R.id.history -> displayFragment(RedemptionsFragment.newInstance())
-            R.id.terminal -> displayFragment(PosTerminalFragment.newInstance())
-            else -> Log.e("Dashboard", "Unknown screen ID")
+        if (currentFragmentId == id) {
+            return
+        }
+
+        val fragment = when (id) {
+            R.id.scan -> ProcessRedeeemableFragment.newInstance()
+            R.id.history -> RedemptionsFragment.newInstance()
+            R.id.terminal -> PosTerminalFragment.newInstance()
+            else -> null
+        }
+
+        if (fragment != null) {
+            currentFragmentId = id
+            displayFragment(fragment)
+        } else {
+            Log.e("Dashboard", "Unknown screen ID")
         }
     }
 
