@@ -59,6 +59,7 @@
     <string name="accept_payment_short">Прийняти</string>
     <string name="waiting_for_pos_payment">Очікується платіж</string>
     <string name="pos_payment_phones_hint">Піднесіть телефон клієнта</string>
+    <string name="pos_payment_accepted_successfully">Погашення прийнято</string>
     <string-array name="months">
         <item>Січень</item>
         <item>Лютий</item>

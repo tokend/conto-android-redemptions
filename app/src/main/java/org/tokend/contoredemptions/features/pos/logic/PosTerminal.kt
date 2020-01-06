@@ -73,7 +73,7 @@ class PosTerminal(
     private fun subscribeToConnections() {
         reader
                 .connections
-                .debounce(1, TimeUnit.SECONDS)
+                .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribe(this::onNewConnection)
                 .addTo(compositeDisposable)
     }

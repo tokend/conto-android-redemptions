@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
@@ -211,10 +212,28 @@ class AcceptPosPaymentFragment : BaseFragment() {
                 .doOnSubscribe { progress.show() }
                 .doOnTerminate { progress.dismiss() }
                 .subscribeBy(
-                        onComplete = { toastManager.short(R.string.ok) },
-                        onError = { errorHandlerFactory.getDefault().handle(it) }
+                        onComplete = this::onPosPaymentAccepted,
+                        onError = this::onPosPaymentError
                 )
                 .addTo(compositeDisposable)
+    }
+
+    private fun onPosPaymentAccepted() {
+        AlertDialog.Builder(requireContext())
+                .setMessage(R.string.pos_payment_accepted_successfully)
+                .setPositiveButton(R.string.ok, null)
+                .show()
+    }
+
+    private fun onPosPaymentError(error: Throwable) {
+        val message = errorHandlerFactory.getDefault().getErrorMessage(error)
+                ?: return
+
+        AlertDialog.Builder(requireContext())
+                .setTitle(R.string.error)
+                .setMessage(message)
+                .setPositiveButton(R.string.ok, null)
+                .show()
     }
 
     override fun onPause() {
