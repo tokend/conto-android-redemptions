@@ -1,10 +1,10 @@
 package org.tokend.contoredemptions.features.pos.logic
 
-import android.util.Log
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.SingleSubject
+import org.tokend.contoredemptions.features.nfc.logic.NfcCommunicationThreadsHolder
 import org.tokend.contoredemptions.features.nfc.logic.NfcConnection
 import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.contoredemptions.features.pos.model.ClientToPosResponse
@@ -19,10 +19,6 @@ import org.tokend.wallet.xdr.TransactionEnvelope
 import org.tokend.wallet.xdr.utils.XdrDataInputStream
 import java.io.ByteArrayInputStream
 import java.io.Closeable
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.ThreadFactory
-import java.util.concurrent.TimeUnit
 
 /**
  * Accepts payments from clients over NFC.
@@ -32,26 +28,14 @@ import java.util.concurrent.TimeUnit
 class PosTerminal(
         private val reader: NfcReader
 ) : Closeable {
-    private class ActiveCommunicationThreadData(
-            val connection: NfcConnection,
-            val future: Future<*>,
-            val startedAt: Long = System.currentTimeMillis()
-    )
-
     private val compositeDisposable = CompositeDisposable()
-    private val executorService = Executors.newScheduledThreadPool(4, object : ThreadFactory {
-        private var i = 1
-        override fun newThread(r: Runnable?) =
-                Thread(r).apply { name = "PosCommunicationThread-${i++}" }
-    })
-    private val activeCommunicationThreads = mutableSetOf<ActiveCommunicationThreadData>()
+    private val communicationThreadsHolder = NfcCommunicationThreadsHolder()
 
     private lateinit var transactionsSubject: SingleSubject<TransactionEnvelope>
     private var currentPaymentRequest: PosPaymentRequest? = null
 
     init {
         subscribeToConnections()
-        scheduleThreadsCleanup()
     }
 
     /**
@@ -62,12 +46,6 @@ class PosTerminal(
         currentPaymentRequest = paymentRequest
         transactionsSubject = SingleSubject.create()
         return transactionsSubject
-    }
-
-    private fun scheduleThreadsCleanup() {
-        executorService.scheduleAtFixedRate({
-            cleanUpThreads()
-        }, 0, 2, TimeUnit.SECONDS)
     }
 
     private fun subscribeToConnections() {
@@ -84,17 +62,13 @@ class PosTerminal(
             return
         }
 
-        val future = executorService.submit { communicate(connection, currentRequest) }
-        activeCommunicationThreads.add(
-                ActiveCommunicationThreadData(connection, future)
-        )
+        communicationThreadsHolder.submit(connection) {
+            communicate(connection, currentRequest)
+        }
     }
 
     private fun communicate(connection: NfcConnection,
                             currentRequest: PosPaymentRequest) {
-        val connectionHash = Integer.toHexString(connection.hashCode())
-        Log.i(LOG_TAG, "Begin communication with by $connectionHash in ${Thread.currentThread().name}")
-
         try {
             connection.open()
             beginCommunication(connection, currentRequest)
@@ -177,39 +151,12 @@ class PosTerminal(
         return ClientToPosResponse.fromBytes(responseBytes)
     }
 
-    /**
-     * Frees threads which are held by closed connection or just running for too long.
-     */
-    private fun cleanUpThreads() {
-        val now = System.currentTimeMillis()
-        val iterator = activeCommunicationThreads.iterator()
-        while (iterator.hasNext()) {
-            val current = iterator.next()
-
-            val isExpired = now - current.startedAt >= COMMUNICATION_TIMEOUT_SECONDS * 1000L
-            val isJustStarted = now == current.startedAt
-            val connectionIsClosed = !current.connection.isActive
-            val connectionHash = Integer.toHexString(current.connection.hashCode())
-
-            if (!isJustStarted && (connectionIsClosed || isExpired)) {
-                Log.i(LOG_TAG, "Cancel future for $connectionHash")
-                current.future.cancel(true)
-            }
-            if (current.future.isCancelled || current.future.isDone) {
-                Log.i(LOG_TAG, "Remove future for $connectionHash")
-                iterator.remove()
-            }
-        }
-    }
-
     override fun close() {
         compositeDisposable.dispose()
-        executorService.shutdownNow()
+        communicationThreadsHolder.shutdown()
     }
 
     companion object {
-        private const val LOG_TAG = "PosTerminal"
         private val AID = "F0436F6E746F504F53".decodeHex()
-        private const val COMMUNICATION_TIMEOUT_SECONDS = 10
     }
 }
