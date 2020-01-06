@@ -105,4 +105,8 @@ class RedemptionsFragment : BaseFragment() {
     private fun update() {
         redemptionsRepository.updateIfNotFresh()
     }
+
+    companion object {
+        fun newInstance() = RedemptionsFragment()
+    }
 }

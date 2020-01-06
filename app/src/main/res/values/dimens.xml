@@ -5,6 +5,7 @@
     <dimen name="text_size_large">26sp</dimen>
     <dimen name="text_size_dialog">16sp</dimen>
     <dimen name="text_size_hint">12sp</dimen>
+    <dimen name="text_size_amount_input">32sp</dimen>
 
     <!-- General margins -->
     <dimen name="hepta_margin">96dp</dimen>

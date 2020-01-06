@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        style="@style/LimitedMatchParentWidthConstraint">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include layout="@layout/include_error_empty_view" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/double_margin"
+                android:paddingRight="@dimen/double_margin">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@id/payment_amount_view"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/double_padding"
+                    android:text="@string/accept_payment"
+                    android:textSize="@dimen/text_size_lead" />
+
+                <org.tokend.contoredemptions.features.pos.view.PlusMinusAmountInputView
+                    android:id="@+id/payment_amount_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@id/space"
+                    android:layout_centerHorizontal="true" />
+
+                <Space
+                    android:id="@+id/space"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/standard_padding"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true" />
+
+                <FrameLayout
+                    android:id="@+id/asset_picker_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/space">
+
+                    <org.tokend.contoredemptions.features.pos.view.AssetPickerSpinner
+                        android:id="@+id/asset_picker_spinner"
+                        style="@style/Widget.AppCompat.Spinner.DropDown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6sp"
+                        android:background="@drawable/rounded_stroke_field_background"
+                        android:popupBackground="@drawable/dropdown_background"
+                        android:spinnerMode="dialog" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginTop="6sp"
+                        android:layout_marginEnd="@dimen/half_standard_margin"
+                        android:layout_marginRight="@dimen/half_standard_margin"
+                        app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+                    <TextView
+                        style="@style/HintText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/half_standard_margin"
+                        android:layout_marginLeft="@dimen/half_standard_margin"
+                        android:background="@color/background"
+                        android:paddingStart="@dimen/quarter_standard_margin"
+                        android:paddingEnd="@dimen/quarter_standard_margin"
+                        android:text="@string/asset" />
+
+                </FrameLayout>
+
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/accept_button"
+                    style="@style/ExtendedFab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_margin="@dimen/standard_padding"
+                    android:text="@string/accept_payment_short"
+                    app:icon="@drawable/ic_signal" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

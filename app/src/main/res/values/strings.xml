@@ -29,7 +29,7 @@
     <string name="disable_flash_action">Turn off flashlight</string>
     <string name="redemption_scan_title">Scan redeemable QR code</string>
     <string name="camera_permission_required_hint">Camera permission is required</string>
-    <string name="open_permission_settings">Open settings</string>
+    <string name="open_settings">Open settings</string>
     <string name="template_error_redemption_not_own_asset">\"%1$s\" is not owned by your company</string>
     <string name="processing_progress">Processing…</string>
     <string name="operation_redemption">Redemption</string>
@@ -51,6 +51,15 @@
     <string name="booking_state_waiting_for_payment">Waiting for payment</string>
     <string name="booking_state_canceled">Canceled</string>
     <string name="booking_state_expired">Expired</string>
+    <string name="pos_terminal">Terminal</string>
+    <string name="enable_nfc_to_use_this_feature_hint">Enable NFC to use this feature</string>
+    <string name="asset">Asset</string>
+    <string name="accept_payment">Accept payment</string>
+    <string name="error_no_assets">No assets found</string>
+    <string name="accept_payment_short">Accept</string>
+    <string name="waiting_for_pos_payment">Waiting for payment</string>
+    <string name="pos_payment_phones_hint">Bring client\'s phone to the back of this one</string>
+    <string name="pos_payment_accepted_successfully">Payment has been accepted</string>
     <string-array name="months">
         <item>January</item>
         <item>February</item>
