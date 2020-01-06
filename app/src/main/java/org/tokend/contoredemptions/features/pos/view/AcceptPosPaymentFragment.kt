@@ -142,8 +142,11 @@ class AcceptPosPaymentFragment : BaseFragment() {
     }
 
     private fun displayAssets() {
+        val company = companyProvider.getCompany()
+
         val assets = balancesRepository.itemsList
                 .map(BalanceRecord::asset)
+                .filter { it.ownerAccountId == company.id }
                 .sortedBy { it.name ?: it.code }
 
         if (assets.isEmpty() && !balancesRepository.isNeverUpdated) {

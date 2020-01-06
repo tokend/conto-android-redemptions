@@ -1,9 +1,11 @@
 package org.tokend.contoredemptions.features.balances.data.storage
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.reactivex.Single
 import org.tokend.contoredemptions.base.data.repository.RepositoryCache
 import org.tokend.contoredemptions.base.data.repository.SimpleMultipleItemsRepository
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
+import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
 import org.tokend.contoredemptions.features.balances.data.model.BalanceRecord
 import org.tokend.rx.extensions.toSingle
 import org.tokend.sdk.api.generated.resources.AccountResource
@@ -12,6 +14,8 @@ import org.tokend.sdk.api.v3.accounts.params.AccountParamsV3
 class BalancesRepository(
         private val accountId: String,
         private val apiProvider: ApiProvider,
+        private val urlConfigProvider: UrlConfigProvider,
+        private val mapper: ObjectMapper,
         itemsCache: RepositoryCache<BalanceRecord>
 ) : SimpleMultipleItemsRepository<BalanceRecord>(itemsCache) {
     override fun getItems(): Single<List<BalanceRecord>> {
@@ -26,7 +30,9 @@ class BalancesRepository(
                 .toSingle()
                 .map(AccountResource::getBalances)
                 .map { balances ->
-                    balances.map(::BalanceRecord)
+                    balances.map { balance ->
+                        BalanceRecord(balance, urlConfigProvider.getConfig(), mapper)
+                    }
                 }
     }
 }

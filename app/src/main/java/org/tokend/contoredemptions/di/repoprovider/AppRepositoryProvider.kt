@@ -77,6 +77,8 @@ class AppRepositoryProvider(
             BalancesRepository(
                     companyId,
                     apiProvider,
+                    urlConfigProvider,
+                    objectMapper,
                     MemoryOnlyRepositoryCache()
             )
         }

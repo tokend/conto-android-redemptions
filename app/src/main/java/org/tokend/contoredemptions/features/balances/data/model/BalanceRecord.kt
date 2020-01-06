@@ -1,15 +1,16 @@
 package org.tokend.contoredemptions.features.balances.data.model
 
-import org.tokend.contoredemptions.features.assets.data.model.Asset
-import org.tokend.contoredemptions.features.assets.data.model.SimpleAsset
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
+import org.tokend.contoredemptions.util.UrlConfig
 import org.tokend.sdk.api.generated.resources.BalanceResource
 
 class BalanceRecord(
         val id: String,
-        val asset: Asset
+        val asset: AssetRecord
 ) {
-    constructor(source: BalanceResource): this(
+    constructor(source: BalanceResource, urlConfig: UrlConfig?, mapper: ObjectMapper): this(
             id = source.id,
-            asset = SimpleAsset(source.asset)
+            asset = AssetRecord.fromResource(source.asset, urlConfig, mapper)
     )
 }
