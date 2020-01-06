@@ -33,7 +33,7 @@ class NfcRedemptionRequestsReader(
     private fun subscribeToConnections() {
         nfcReader
                 .connections
-                .debounce(500, TimeUnit.MILLISECONDS)
+                .debounce(1, TimeUnit.SECONDS)
                 .subscribeBy(
                         onNext = this::onNewConnection,
                         onError = { it.printStackTrace() }
@@ -58,7 +58,10 @@ class NfcRedemptionRequestsReader(
             e.printStackTrace()
             null
         } finally {
-            connection.close()
+            try {
+                connection.close()
+            } catch (_: Exception) {
+            }
         }
 
         if (response == null

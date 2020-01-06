@@ -5,8 +5,10 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
 import android.os.Build
+import android.os.VibrationEffect
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import org.jetbrains.anko.vibrator
 
 class SimpleNfcReader(
         private val activity: Activity
@@ -46,8 +48,24 @@ class SimpleNfcReader(
     }
 
     private fun onTagDiscovered(tag: Tag) {
+        vibrate()
         IsoDep.get(tag)
                 ?.let(::IsoDepNfcConnection)
                 ?.also(connectionsSubject::onNext)
+    }
+
+    private fun vibrate() {
+        val vibrator = activity.vibrator
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(VIBRATION_DURATION_MS, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                vibrator.vibrate(VIBRATION_DURATION_MS)
+            }
+        }
+    }
+
+    companion object {
+        private const val VIBRATION_DURATION_MS = 100L
     }
 }

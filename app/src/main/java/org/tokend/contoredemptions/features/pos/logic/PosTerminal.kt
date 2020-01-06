@@ -73,6 +73,7 @@ class PosTerminal(
     private fun subscribeToConnections() {
         reader
                 .connections
+                .debounce(1, TimeUnit.SECONDS)
                 .subscribe(this::onNewConnection)
                 .addTo(compositeDisposable)
     }
@@ -92,7 +93,8 @@ class PosTerminal(
 
     private fun communicate(connection: NfcConnection,
                             currentRequest: PosPaymentRequest) {
-        Log.i(LOG_TAG, "Begin communication with by $connection in ${Thread.currentThread().name}")
+        val connectionHash = Integer.toHexString(connection.hashCode())
+        Log.i(LOG_TAG, "Begin communication with by $connectionHash in ${Thread.currentThread().name}")
 
         try {
             connection.open()
@@ -188,13 +190,14 @@ class PosTerminal(
             val isExpired = now - current.startedAt >= COMMUNICATION_TIMEOUT_SECONDS * 1000L
             val isJustStarted = now == current.startedAt
             val connectionIsClosed = !current.connection.isActive
+            val connectionHash = Integer.toHexString(current.connection.hashCode())
 
             if (!isJustStarted && (connectionIsClosed || isExpired)) {
-                Log.i(LOG_TAG, "Cancel future for ${current.connection}")
+                Log.i(LOG_TAG, "Cancel future for $connectionHash")
                 current.future.cancel(true)
             }
             if (current.future.isCancelled || current.future.isDone) {
-                Log.i(LOG_TAG, "Remove future for ${current.connection}")
+                Log.i(LOG_TAG, "Remove future for $connectionHash")
                 iterator.remove()
             }
         }
