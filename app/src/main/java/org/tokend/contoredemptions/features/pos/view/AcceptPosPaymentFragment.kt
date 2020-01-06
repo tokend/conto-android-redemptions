@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_accept_pos_payment.*
@@ -183,32 +183,30 @@ class AcceptPosPaymentFragment : BaseFragment() {
         val amount = payment_amount_view.amountWrapper.scaledAmount
 
         if (canAccept) {
-            acceptPayment(amount, asset.code)
+            acceptPayment(amount, asset)
         }
     }
 
-    private fun acceptPayment(amount: BigDecimal, assetCode: String) {
-        val disposable = CompositeDisposable()
-        disposable.addTo(compositeDisposable)
+    private fun acceptPayment(amount: BigDecimal, asset: Asset) {
+        var disposable: Disposable? = null
 
         val progress = ProgressDialogFactory.getDialog(
                 requireContext(),
                 R.string.loading_data
-        ) { disposable.dispose() }
+        ) { disposable?.dispose() }
                 .apply {
                     setTitle(R.string.waiting_for_pos_payment)
                 }
 
-        val useCase = AcceptPaymentWithPosTerminalUseCase(
+        disposable = AcceptPaymentWithPosTerminalUseCase(
                 amount = amount,
-                assetCode = assetCode,
+                asset = asset,
                 apiProvider = apiProvider,
                 repositoryProvider = repositoryProvider,
                 posTerminal = posTerminal,
+                companyProvider = companyProvider,
                 txManager = TxManager(apiProvider)
         )
-
-        useCase
                 .perform()
                 .compose(ObservableTransformers.defaultSchedulers())
                 .doOnSubscribe { progress.show() }
@@ -224,7 +222,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
                         onComplete = this::onPosPaymentAccepted,
                         onError = this::onPosPaymentError
                 )
-                .addTo(disposable)
+                .addTo(compositeDisposable)
     }
 
     private fun onPosPaymentAccepted() {

@@ -22,6 +22,8 @@ class SimpleNfcReader(
 
     override val connections: Observable<NfcConnection> = connectionsSubject
 
+    private var acceptTags: Boolean = true
+
     override fun start() {
         if (adapter == null
                 || !adapter.isEnabled
@@ -48,10 +50,18 @@ class SimpleNfcReader(
     }
 
     private fun onTagDiscovered(tag: Tag) {
-        vibrate()
-        IsoDep.get(tag)
-                ?.let(::IsoDepNfcConnection)
-                ?.also(connectionsSubject::onNext)
+        if (acceptTags) {
+            acceptTags = false
+            Thread {
+                Thread.sleep(TIMEOUT_MS)
+                acceptTags = true
+            }.start()
+
+            vibrate()
+            IsoDep.get(tag)
+                    ?.let(::IsoDepNfcConnection)
+                    ?.also(connectionsSubject::onNext)
+        }
     }
 
     private fun vibrate() {
@@ -67,5 +77,6 @@ class SimpleNfcReader(
 
     companion object {
         private const val VIBRATION_DURATION_MS = 100L
+        private const val TIMEOUT_MS = 1000L
     }
 }

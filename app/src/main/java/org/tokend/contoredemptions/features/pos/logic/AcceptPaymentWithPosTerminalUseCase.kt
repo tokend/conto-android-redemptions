@@ -2,6 +2,7 @@ package org.tokend.contoredemptions.features.pos.logic
 
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toMaybe
 import io.reactivex.rxkotlin.toSingle
 import io.reactivex.subjects.PublishSubject
@@ -43,7 +44,7 @@ class AcceptPaymentWithPosTerminalUseCase(
     fun perform(): Observable<PaymentAcceptanceState> {
         val resultSubject = PublishSubject.create<PaymentAcceptanceState>()
 
-        getNetworkParams()
+        val disposable = getNetworkParams()
                 .doOnSuccess { networkParams ->
                     this.networkParams = networkParams
                 }
@@ -84,9 +85,16 @@ class AcceptPaymentWithPosTerminalUseCase(
                     PaymentAcceptanceState.ACCEPTED
                 }
                 .toObservable()
-                .subscribe(resultSubject)
+                // Otherwise chain won't be disposed by desposing the
+                // only subscriber of the subject.
+                .subscribeBy(
+                        resultSubject::onNext,
+                        resultSubject::onError,
+                        resultSubject::onComplete
+                )
 
         return resultSubject
+                .doOnDispose { disposable.dispose() }
     }
 
     private fun getNetworkParams(): Single<NetworkParams> {

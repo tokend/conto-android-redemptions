@@ -10,7 +10,6 @@ import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.sdk.utils.extentions.decodeHex
 import java.io.Closeable
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 /**
  * Reads redemption requests broadcasted over NFC if it's available
@@ -33,7 +32,6 @@ class NfcRedemptionRequestsReader(
     private fun subscribeToConnections() {
         nfcReader
                 .connections
-                .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribeBy(
                         onNext = this::onNewConnection,
                         onError = { it.printStackTrace() }
