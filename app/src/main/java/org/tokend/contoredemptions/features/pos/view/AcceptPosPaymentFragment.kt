@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_accept_pos_payment.*
@@ -20,6 +20,7 @@ import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.contoredemptions.features.nfc.logic.SimpleNfcReader
 import org.tokend.contoredemptions.features.pos.logic.AcceptPaymentWithPosTerminalUseCase
 import org.tokend.contoredemptions.features.pos.logic.PosTerminal
+import org.tokend.contoredemptions.features.pos.model.PaymentAcceptanceState
 import org.tokend.contoredemptions.features.transactions.logic.TxManager
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.util.LoadingIndicatorManager
@@ -187,19 +188,18 @@ class AcceptPosPaymentFragment : BaseFragment() {
     }
 
     private fun acceptPayment(amount: BigDecimal, assetCode: String) {
-        var disposable: Disposable? = null
+        val disposable = CompositeDisposable()
+        disposable.addTo(compositeDisposable)
 
         val progress = ProgressDialogFactory.getDialog(
                 requireContext(),
-                R.string.pos_payment_phones_hint
-        ) {
-            disposable?.dispose()
-        }
+                R.string.loading_data
+        ) { disposable.dispose() }
                 .apply {
                     setTitle(R.string.waiting_for_pos_payment)
                 }
 
-        disposable = AcceptPaymentWithPosTerminalUseCase(
+        val useCase = AcceptPaymentWithPosTerminalUseCase(
                 amount = amount,
                 assetCode = assetCode,
                 apiProvider = apiProvider,
@@ -207,15 +207,24 @@ class AcceptPosPaymentFragment : BaseFragment() {
                 posTerminal = posTerminal,
                 txManager = TxManager(apiProvider)
         )
+
+        useCase
                 .perform()
-                .compose(ObservableTransformers.defaultSchedulersCompletable())
+                .compose(ObservableTransformers.defaultSchedulers())
                 .doOnSubscribe { progress.show() }
                 .doOnTerminate { progress.dismiss() }
                 .subscribeBy(
+                        onNext = { state ->
+                            progress.setMessage(getString(when (state) {
+                                PaymentAcceptanceState.WAITING_FOR_PAYMENT -> R.string.pos_payment_phones_hint
+                                PaymentAcceptanceState.SUBMITTING_TX -> R.string.processing_progress
+                                else -> R.string.loading_data
+                            }))
+                        },
                         onComplete = this::onPosPaymentAccepted,
                         onError = this::onPosPaymentError
                 )
-                .addTo(compositeDisposable)
+                .addTo(disposable)
     }
 
     private fun onPosPaymentAccepted() {
