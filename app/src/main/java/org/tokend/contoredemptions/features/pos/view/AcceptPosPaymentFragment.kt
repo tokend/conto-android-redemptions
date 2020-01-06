@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_accept_pos_payment.*
 import kotlinx.android.synthetic.main.include_error_empty_view.*
 import org.tokend.contoredemptions.R
@@ -16,7 +17,9 @@ import org.tokend.contoredemptions.features.assets.data.model.Asset
 import org.tokend.contoredemptions.features.assets.data.storage.AssetsRepository
 import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.contoredemptions.features.nfc.logic.SimpleNfcReader
+import org.tokend.contoredemptions.features.pos.logic.AcceptPaymentWithPosTerminalUseCase
 import org.tokend.contoredemptions.features.pos.logic.PosTerminal
+import org.tokend.contoredemptions.features.transactions.logic.TxManager
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.util.LoadingIndicatorManager
 import org.tokend.contoredemptions.view.util.ProgressDialogFactory
@@ -70,6 +73,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
         initSwipeRefresh()
         initAssetSelection()
         initAmountInput()
+        initButtons()
 
         subscribeToAssets()
 
@@ -94,6 +98,12 @@ class AcceptPosPaymentFragment : BaseFragment() {
             updateAcceptAvailability()
         }
         payment_amount_view.amountWrapper.setAmount(PRE_FILLED_AMOUNT)
+    }
+
+    private fun initButtons() {
+        accept_button.setOnClickListener {
+            tryToAcceptPayment()
+        }
     }
 
     private fun subscribeToAssets() {
@@ -178,11 +188,33 @@ class AcceptPosPaymentFragment : BaseFragment() {
     private fun acceptPayment(amount: BigDecimal, assetCode: String) {
         var disposable: Disposable? = null
 
-        val progress = ProgressDialogFactory.getDialog(requireContext(), R.string.loading_data) {
+        val progress = ProgressDialogFactory.getDialog(
+                requireContext(),
+                R.string.pos_payment_phones_hint
+        ) {
             disposable?.dispose()
         }
+                .apply {
+                    setTitle(R.string.waiting_for_pos_payment)
+                }
 
-
+        disposable = AcceptPaymentWithPosTerminalUseCase(
+                amount = amount,
+                assetCode = assetCode,
+                apiProvider = apiProvider,
+                repositoryProvider = repositoryProvider,
+                posTerminal = posTerminal,
+                txManager = TxManager(apiProvider)
+        )
+                .perform()
+                .compose(ObservableTransformers.defaultSchedulersCompletable())
+                .doOnSubscribe { progress.show() }
+                .doOnTerminate { progress.dismiss() }
+                .subscribeBy(
+                        onComplete = { toastManager.short(R.string.ok) },
+                        onError = { errorHandlerFactory.getDefault().handle(it) }
+                )
+                .addTo(compositeDisposable)
     }
 
     override fun onPause() {

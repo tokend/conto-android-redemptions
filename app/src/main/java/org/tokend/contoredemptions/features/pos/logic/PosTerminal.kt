@@ -1,5 +1,6 @@
 package org.tokend.contoredemptions.features.pos.logic
 
+import android.util.Log
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -91,6 +92,8 @@ class PosTerminal(
 
     private fun communicate(connection: NfcConnection,
                             currentRequest: PosPaymentRequest) {
+        Log.i(LOG_TAG, "Begin communication with by $connection in ${Thread.currentThread().name}")
+
         try {
             connection.open()
             beginCommunication(connection, currentRequest)
@@ -187,9 +190,11 @@ class PosTerminal(
             val connectionIsClosed = !current.connection.isActive
 
             if (!isJustStarted && (connectionIsClosed || isExpired)) {
+                Log.i(LOG_TAG, "Cancel future for ${current.connection}")
                 current.future.cancel(true)
             }
             if (current.future.isCancelled || current.future.isDone) {
+                Log.i(LOG_TAG, "Remove future for ${current.connection}")
                 iterator.remove()
             }
         }
@@ -201,6 +206,7 @@ class PosTerminal(
     }
 
     companion object {
+        private const val LOG_TAG = "PosTerminal"
         private val AID = byteArrayOf(0xF0.toByte(), 0x42, 0x42, 0x42)
         private const val COMMUNICATION_TIMEOUT_SECONDS = 10
     }

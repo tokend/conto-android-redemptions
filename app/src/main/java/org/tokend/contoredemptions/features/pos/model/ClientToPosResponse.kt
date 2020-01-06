@@ -1,5 +1,7 @@
 package org.tokend.contoredemptions.features.pos.model
 
+import org.tokend.sdk.utils.extentions.encodeHexString
+
 sealed class ClientToPosResponse {
     object Empty: ClientToPosResponse() {
         fun isIt(responseBytes: ByteArray) = responseBytes.isEmpty()
@@ -51,7 +53,7 @@ sealed class ClientToPosResponse {
                 NoData.isIt(responseBytes) -> NoData
                 PaymentTransaction.isIt(responseBytes) -> PaymentTransaction.fromBytes(responseBytes)
 
-                else -> throw IllegalArgumentException("Unknown response")
+                else -> throw IllegalArgumentException("Unknown response ${responseBytes.encodeHexString()}")
             }
         }
     }
