@@ -209,7 +209,7 @@ class PosTerminal(
 
     companion object {
         private const val LOG_TAG = "PosTerminal"
-        private val AID = byteArrayOf(0xF0.toByte(), 0x42, 0x42, 0x42)
+        private val AID = "F0436F6E746F504F53".decodeHex()
         private const val COMMUNICATION_TIMEOUT_SECONDS = 10
     }
 }
