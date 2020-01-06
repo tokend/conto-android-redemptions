@@ -45,7 +45,7 @@ class AssetPickerSpinner @JvmOverloads constructor(
 
             val item = getItem(position)!!
 
-            view.setPadding(textLeftPadding, view.paddingTop, textRightPadding, view.bottom)
+            view.setPadding(textLeftPadding, view.paddingTop, textRightPadding, view.paddingBottom)
             view.setSingleLine(false)
             view.maxLines = 2
             view.ellipsize = TextUtils.TruncateAt.END
