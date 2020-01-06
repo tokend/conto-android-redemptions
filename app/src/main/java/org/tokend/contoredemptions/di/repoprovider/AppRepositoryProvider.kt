@@ -8,6 +8,7 @@ import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
 import org.tokend.contoredemptions.extensions.getOrPut
 import org.tokend.contoredemptions.features.assets.data.storage.AssetsRepository
+import org.tokend.contoredemptions.features.balances.data.storage.BalancesRepository
 import org.tokend.contoredemptions.features.companies.data.CompaniesRepository
 import org.tokend.contoredemptions.features.history.data.service.RedemptionsDbService
 import org.tokend.contoredemptions.features.history.data.storage.RedemptionsRepository
@@ -40,6 +41,9 @@ class AppRepositoryProvider(
         AccountDetailsRepository(apiProvider)
     }
 
+    private val balancesRepositories =
+            LruCache<String, BalancesRepository>(MAX_SAME_REPOSITORIES_COUNT)
+
     override fun companies(): CompaniesRepository {
         return companiesRepository
     }
@@ -65,6 +69,17 @@ class AppRepositoryProvider(
 
     override fun accountDetails(): AccountDetailsRepository {
         return accountDetailsRepository
+    }
+
+    override fun balances(companyId: String): BalancesRepository {
+        val key = companyId
+        return balancesRepositories.getOrPut(key) {
+            BalancesRepository(
+                    companyId,
+                    apiProvider,
+                    MemoryOnlyRepositoryCache()
+            )
+        }
     }
 
     private companion object {

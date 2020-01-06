@@ -1,12 +1,12 @@
 package org.tokend.contoredemptions.features.pos.logic
 
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toMaybe
 import io.reactivex.rxkotlin.toSingle
-import io.reactivex.subjects.PublishSubject
-import org.tokend.contoredemptions.di.apiprovider.ApiProvider
+import io.reactivex.subjects.BehaviorSubject
 import org.tokend.contoredemptions.di.companyprovider.CompanyProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.features.assets.data.model.Asset
@@ -15,8 +15,6 @@ import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.pos.model.PaymentAcceptanceState
 import org.tokend.contoredemptions.features.pos.model.PosPaymentRequest
 import org.tokend.contoredemptions.features.transactions.logic.TxManager
-import org.tokend.rx.extensions.toSingle
-import org.tokend.sdk.api.v3.accounts.params.AccountParamsV3
 import org.tokend.wallet.Base32Check
 import org.tokend.wallet.NetworkParams
 import org.tokend.wallet.xdr.PublicKey
@@ -28,7 +26,6 @@ class AcceptPaymentWithPosTerminalUseCase(
         private val amount: BigDecimal,
         private val asset: Asset,
         private val posTerminal: PosTerminal,
-        private val apiProvider: ApiProvider,
         private val repositoryProvider: RepositoryProvider,
         private val companyProvider: CompanyProvider,
         private val txManager: TxManager
@@ -42,9 +39,9 @@ class AcceptPaymentWithPosTerminalUseCase(
     private lateinit var paymentTransaction: TransactionEnvelope
 
     fun perform(): Observable<PaymentAcceptanceState> {
-        val resultSubject = PublishSubject.create<PaymentAcceptanceState>()
+        val resultSubject = BehaviorSubject.createDefault(PaymentAcceptanceState.LOADING_DATA)
 
-        val disposable = getNetworkParams()
+        val chain = getNetworkParams()
                 .doOnSuccess { networkParams ->
                     this.networkParams = networkParams
                 }
@@ -85,16 +82,18 @@ class AcceptPaymentWithPosTerminalUseCase(
                     PaymentAcceptanceState.ACCEPTED
                 }
                 .toObservable()
-                // Otherwise chain won't be disposed by desposing the
-                // only subscriber of the subject.
-                .subscribeBy(
-                        resultSubject::onNext,
-                        resultSubject::onError,
-                        resultSubject::onComplete
-                )
 
-        return resultSubject
-                .doOnDispose { disposable.dispose() }
+        return Observable.defer {
+            // Otherwise chain won't be disposed by desposing the
+            // only subscriber of the subject.
+            val disposable = chain.subscribeBy(
+                    resultSubject::onNext,
+                    resultSubject::onError,
+                    resultSubject::onComplete
+            )
+
+            resultSubject.doOnDispose { disposable.dispose() }
+        }
     }
 
     private fun getNetworkParams(): Single<NetworkParams> {
@@ -107,27 +106,18 @@ class AcceptPaymentWithPosTerminalUseCase(
     }
 
     private fun getDestinationBalanceId(): Single<String> {
-        return apiProvider.getApi()
-                .v3
-                .accounts
-                .getById(
-                        accountId = company.id,
-                        params = AccountParamsV3(listOf(
-                                AccountParamsV3.Includes.BALANCES,
-                                AccountParamsV3.Includes.BALANCES_ASSET
-                        ))
-                )
-                .toSingle()
-                .flatMapMaybe { account ->
-                    account
-                            .balances
-                            .find { balance ->
-                                balance.asset.id == assetCode
-                            }
+        val balancesRepository = repositoryProvider.balances(company.id)
+
+        return balancesRepository
+                .updateIfNotFreshDeferred()
+                .andThen(Maybe.defer {
+                    balancesRepository
+                            .itemsList
+                            .find { it.asset.code == assetCode }
                             ?.id
                             .toMaybe()
-                }
-                .switchIfEmpty(Single.error(IllegalStateException("Asset owner $company " +
+                })
+                .switchIfEmpty(Single.error(IllegalStateException("Asset owner ${company.id} " +
                         "somehow has no $assetCode balance")))
     }
 

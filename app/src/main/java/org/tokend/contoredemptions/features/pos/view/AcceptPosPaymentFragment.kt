@@ -15,7 +15,8 @@ import kotlinx.android.synthetic.main.include_error_empty_view.*
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseFragment
 import org.tokend.contoredemptions.features.assets.data.model.Asset
-import org.tokend.contoredemptions.features.assets.data.storage.AssetsRepository
+import org.tokend.contoredemptions.features.balances.data.model.BalanceRecord
+import org.tokend.contoredemptions.features.balances.data.storage.BalancesRepository
 import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.contoredemptions.features.nfc.logic.SimpleNfcReader
 import org.tokend.contoredemptions.features.pos.logic.AcceptPaymentWithPosTerminalUseCase
@@ -28,13 +29,13 @@ import org.tokend.contoredemptions.view.util.ProgressDialogFactory
 import java.math.BigDecimal
 
 class AcceptPosPaymentFragment : BaseFragment() {
-    private val assetsRepository: AssetsRepository
-        get() = repositoryProvider.assets()
+    private val balancesRepository: BalancesRepository
+        get() = repositoryProvider.balances(companyProvider.getCompany().id)
 
     private val loadingIndicator = LoadingIndicatorManager(
             showLoading = {
                 swipe_refresh.isRefreshing = true
-                if (assetsRepository.isNeverUpdated) {
+                if (balancesRepository.isNeverUpdated) {
                     error_empty_view.showEmpty(R.string.loading_data)
                 }
             },
@@ -77,7 +78,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
         initAmountInput()
         initButtons()
 
-        subscribeToAssets()
+        subscribeToBalances()
 
         update()
 
@@ -108,24 +109,24 @@ class AcceptPosPaymentFragment : BaseFragment() {
         }
     }
 
-    private fun subscribeToAssets() {
-        assetsRepository.loadingSubject
+    private fun subscribeToBalances() {
+        balancesRepository.loadingSubject
                 .compose(ObservableTransformers.defaultSchedulers())
                 .subscribe { isLoading ->
                     loadingIndicator.setLoading(isLoading)
                 }
                 .addTo(compositeDisposable)
 
-        assetsRepository.itemsSubject
+        balancesRepository.itemsSubject
                 .compose(ObservableTransformers.defaultSchedulers())
-                .subscribe { onAssetsUpdated() }
+                .subscribe { onBalancesUpdated() }
                 .addTo(compositeDisposable)
 
-        assetsRepository.errorsSubject
+        balancesRepository.errorsSubject
                 .compose(ObservableTransformers.defaultSchedulers())
                 .subscribe { error ->
                     val errorHandler = errorHandlerFactory.getDefault()
-                    if (assetsRepository.isNeverUpdated) {
+                    if (balancesRepository.isNeverUpdated) {
                         error_empty_view.showError(error, errorHandler) {
                             update(force = true)
                         }
@@ -136,18 +137,16 @@ class AcceptPosPaymentFragment : BaseFragment() {
                 .addTo(compositeDisposable)
     }
 
-    private fun onAssetsUpdated() {
+    private fun onBalancesUpdated() {
         displayAssets()
     }
 
     private fun displayAssets() {
-        val company = companyProvider.getCompany()
-
-        val assets = assetsRepository.itemsList
-                .filter { it.ownerAccountId == company.id }
+        val assets = balancesRepository.itemsList
+                .map(BalanceRecord::asset)
                 .sortedBy { it.name ?: it.code }
 
-        if (assets.isEmpty() && !assetsRepository.isNeverUpdated) {
+        if (assets.isEmpty() && !balancesRepository.isNeverUpdated) {
             error_empty_view.showEmpty(R.string.error_no_assets)
         } else if (assets.isNotEmpty()) {
             error_empty_view.hide()
@@ -171,9 +170,9 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
     private fun update(force: Boolean = false) {
         if (!force) {
-            assetsRepository.updateIfNotFresh()
+            balancesRepository.updateIfNotFresh()
         } else {
-            assetsRepository.update()
+            balancesRepository.update()
         }
     }
 
@@ -201,7 +200,6 @@ class AcceptPosPaymentFragment : BaseFragment() {
         disposable = AcceptPaymentWithPosTerminalUseCase(
                 amount = amount,
                 asset = asset,
-                apiProvider = apiProvider,
                 repositoryProvider = repositoryProvider,
                 posTerminal = posTerminal,
                 companyProvider = companyProvider,
