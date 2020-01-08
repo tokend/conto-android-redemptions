@@ -1,6 +1,7 @@
 package org.tokend.contoredemptions.features.pos.logic
 
 import android.nfc.TagLostException
+import android.util.Log
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -11,6 +12,7 @@ import org.tokend.contoredemptions.features.pos.model.ClientToPosResponse
 import org.tokend.contoredemptions.features.pos.model.PosPaymentRequest
 import org.tokend.contoredemptions.features.pos.model.PosToClientCommand
 import org.tokend.sdk.utils.extentions.decodeHex
+import org.tokend.sdk.utils.extentions.encodeHexString
 import org.tokend.wallet.Base32Check
 import org.tokend.wallet.xdr.Operation
 import org.tokend.wallet.xdr.PaymentOp
@@ -74,9 +76,11 @@ class PosTerminal(
             connection.open()
             beginCommunication(connection, currentRequest)
         } catch (e: Exception) {
-            e.printStackTrace()
             if (e !is TagLostException) {
+                e.printStackTrace()
                 sendCommand(connection, PosToClientCommand.Error)
+            } else {
+                Log.d(LOG_TAG, "Connection was lost")
             }
         } finally {
             try {
@@ -150,7 +154,9 @@ class PosTerminal(
             connection: NfcConnection,
             command: PosToClientCommand
     ): ClientToPosResponse {
+        Log.d(LOG_TAG, "Send ${command.data.encodeHexString()}")
         val responseBytes = connection.transceive(command.data)
+        Log.d(LOG_TAG, "Received ${responseBytes.encodeHexString()}")
         return ClientToPosResponse.fromBytes(responseBytes)
     }
 
@@ -160,6 +166,7 @@ class PosTerminal(
     }
 
     companion object {
+        private const val LOG_TAG = "PosTerminal"
         private val AID = "F0436F6E746F504F53".decodeHex()
     }
 }
