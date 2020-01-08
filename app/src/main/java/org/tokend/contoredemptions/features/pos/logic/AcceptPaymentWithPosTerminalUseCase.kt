@@ -74,9 +74,11 @@ class AcceptPaymentWithPosTerminalUseCase(
                     resultSubject.onNext(PaymentAcceptanceState.SUBMITTING_TX)
                     txManager.submit(paymentTransaction)
                 }
+                .flatMap {
+                    updateRepositories()
+                }
                 .doOnSuccess {
                     resultSubject.onComplete()
-                    updateRepositories()
                 }
                 .map {
                     PaymentAcceptanceState.ACCEPTED
@@ -133,14 +135,14 @@ class AcceptPaymentWithPosTerminalUseCase(
         return posTerminal.requestPayment(posPaymentRequest)
     }
 
-    private fun updateRepositories() {
+    private fun updateRepositories(): Single<Boolean> {
         val sourceAccountId = (paymentTransaction.tx.sourceAccount as? PublicKey.KeyTypeEd25519)
                 ?.ed25519
                 ?.wrapped
                 ?.let(Base32Check::encodeAccountId)
-                ?: return
+                ?: return Single.just(false)
 
-        repositoryProvider
+        return repositoryProvider
                 .redemptions(company.id)
                 .add(RedemptionRecord(
                         sourceAccount = RedemptionRecord.Account(
@@ -153,6 +155,7 @@ class AcceptPaymentWithPosTerminalUseCase(
                         asset = asset,
                         reference = posPaymentRequest.reference.contentHashCode().toLong()
                 ))
+                .toSingleDefault(true)
     }
 
     companion object {
