@@ -16,13 +16,6 @@ sealed class ClientToPosResponse {
         override val data = HEADER
     }
 
-    object NoData : ClientToPosResponse() {
-        private val HEADER = byteArrayOf(0x21)
-        fun isIt(responseBytes: ByteArray) = responseBytes.contentEquals(HEADER)
-
-        override val data = HEADER
-    }
-
     class PaymentTransaction(val transactionEnvelopeXdr: ByteArray) : ClientToPosResponse() {
         override val data = HEADER + transactionEnvelopeXdr
 
@@ -50,7 +43,6 @@ sealed class ClientToPosResponse {
             return when {
                 Empty.isIt(responseBytes) -> Empty
                 Ok.isIt(responseBytes) -> Ok
-                NoData.isIt(responseBytes) -> NoData
                 PaymentTransaction.isIt(responseBytes) -> PaymentTransaction.fromBytes(responseBytes)
 
                 else -> throw IllegalArgumentException("Unknown response ${responseBytes.encodeHexString()}")

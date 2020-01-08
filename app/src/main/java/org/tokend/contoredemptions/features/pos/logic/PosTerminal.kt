@@ -1,10 +1,10 @@
 package org.tokend.contoredemptions.features.pos.logic
 
+import android.nfc.TagLostException
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.SingleSubject
-import org.tokend.contoredemptions.features.nfc.logic.NfcCommunicationThreadsHolder
 import org.tokend.contoredemptions.features.nfc.logic.NfcConnection
 import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.contoredemptions.features.pos.model.ClientToPosResponse
@@ -19,6 +19,7 @@ import org.tokend.wallet.xdr.TransactionEnvelope
 import org.tokend.wallet.xdr.utils.XdrDataInputStream
 import java.io.ByteArrayInputStream
 import java.io.Closeable
+import java.util.concurrent.Executors
 
 /**
  * Accepts payments from clients over NFC.
@@ -29,7 +30,7 @@ class PosTerminal(
         private val reader: NfcReader
 ) : Closeable {
     private val compositeDisposable = CompositeDisposable()
-    private val communicationThreadsHolder = NfcCommunicationThreadsHolder()
+    private val communicationExecutorService = Executors.newFixedThreadPool(4)
 
     private lateinit var transactionsSubject: SingleSubject<TransactionEnvelope>
     private var currentPaymentRequest: PosPaymentRequest? = null
@@ -62,7 +63,7 @@ class PosTerminal(
             return
         }
 
-        communicationThreadsHolder.submit(connection) {
+        communicationExecutorService.submit {
             communicate(connection, currentRequest)
         }
     }
@@ -74,7 +75,9 @@ class PosTerminal(
             beginCommunication(connection, currentRequest)
         } catch (e: Exception) {
             e.printStackTrace()
-            sendCommand(connection, PosToClientCommand.Error)
+            if (e !is TagLostException) {
+                sendCommand(connection, PosToClientCommand.Error)
+            }
         } finally {
             try {
                 connection.close()
@@ -153,7 +156,7 @@ class PosTerminal(
 
     override fun close() {
         compositeDisposable.dispose()
-        communicationThreadsHolder.shutdown()
+        communicationExecutorService.shutdownNow()
     }
 
     companion object {

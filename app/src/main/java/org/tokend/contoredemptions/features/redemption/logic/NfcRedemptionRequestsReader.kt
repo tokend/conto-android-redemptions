@@ -5,11 +5,11 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.PublishSubject
-import org.tokend.contoredemptions.features.nfc.logic.NfcCommunicationThreadsHolder
 import org.tokend.contoredemptions.features.nfc.logic.NfcConnection
 import org.tokend.contoredemptions.features.nfc.logic.NfcReader
 import org.tokend.sdk.utils.extentions.decodeHex
 import java.io.Closeable
+import java.util.concurrent.Executors
 
 /**
  * Reads redemption requests broadcasted over NFC if it's available
@@ -20,7 +20,7 @@ class NfcRedemptionRequestsReader(
         private val nfcReader: NfcReader
 ) : Closeable {
     private val compositeDisposable = CompositeDisposable()
-    private val communicationThreadsHolder = NfcCommunicationThreadsHolder()
+    private val communicationExecutorService = Executors.newFixedThreadPool(4)
     private val readRequestsSubject: PublishSubject<ByteArray> = PublishSubject.create()
     val readRequests: Observable<ByteArray> = readRequestsSubject
 
@@ -39,13 +39,15 @@ class NfcRedemptionRequestsReader(
     }
 
     private fun onNewConnection(connection: NfcConnection) {
-        communicationThreadsHolder.submit(connection) { readRedemptionRequest(connection) }
+        communicationExecutorService.submit {
+            readRedemptionRequest(connection)
+        }
     }
 
     private fun readRedemptionRequest(connection: NfcConnection) {
         val response: ByteArray? = try {
             connection.open()
-            connection.transceive( SELECT_AID_HEADER + AID.size.toByte() + AID)
+            connection.transceive(SELECT_AID_HEADER + AID.size.toByte() + AID)
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -68,7 +70,7 @@ class NfcRedemptionRequestsReader(
 
     override fun close() {
         compositeDisposable.dispose()
-        communicationThreadsHolder.shutdown()
+        communicationExecutorService.shutdownNow()
     }
 
     companion object {

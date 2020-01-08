@@ -5,7 +5,10 @@ import android.nfc.tech.IsoDep
 class IsoDepNfcConnection(
         val isoDep: IsoDep
 ) : NfcConnection {
-    override fun open() = isoDep.connect()
+    override fun open() {
+        isoDep.connect()
+        isoDep.timeout = TRANSCEIVE_TIMEOUT_MS
+    }
 
     override fun transceive(data: ByteArray): ByteArray = isoDep.transceive(data)
 
@@ -13,4 +16,8 @@ class IsoDepNfcConnection(
 
     override val isActive: Boolean
         get() = isoDep.isConnected
+
+    private companion object {
+        private const val TRANSCEIVE_TIMEOUT_MS = 10000
+    }
 }
