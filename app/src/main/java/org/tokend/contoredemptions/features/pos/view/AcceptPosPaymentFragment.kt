@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import io.reactivex.disposables.Disposable
@@ -12,6 +14,7 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_accept_pos_payment.*
 import kotlinx.android.synthetic.main.include_error_empty_view.*
+import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.base.view.BaseFragment
 import org.tokend.contoredemptions.features.assets.data.model.Asset
@@ -26,6 +29,7 @@ import org.tokend.contoredemptions.features.transactions.logic.TxManager
 import org.tokend.contoredemptions.util.ObservableTransformers
 import org.tokend.contoredemptions.view.util.LoadingIndicatorManager
 import org.tokend.contoredemptions.view.util.ProgressDialogFactory
+import org.tokend.contoredemptions.view.util.input.SoftInputUtil
 import java.math.BigDecimal
 
 class AcceptPosPaymentFragment : BaseFragment() {
@@ -77,6 +81,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
         initAssetSelection()
         initAmountInput()
         initButtons()
+        initMinLayoutHeight()
 
         subscribeToBalances()
 
@@ -106,6 +111,29 @@ class AcceptPosPaymentFragment : BaseFragment() {
     private fun initButtons() {
         accept_button.setOnClickListener {
             tryToAcceptPayment()
+        }
+    }
+
+    private fun initMinLayoutHeight() {
+        val minLayoutHeight = requireContext().dip(MIN_LAYOUT_HEIGHT_DP)
+        var minHeightIsSet = false
+
+        root_layout.addOnLayoutChangeListener { _, _, top, _, bottom, _, _, _, _ ->
+            val height = bottom - top
+            val needToSetMinHeight = height < minLayoutHeight
+
+            if (needToSetMinHeight != minHeightIsSet) {
+                val heightToSet =
+                        if (needToSetMinHeight)
+                            minLayoutHeight
+                        else
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                minHeightIsSet = needToSetMinHeight
+                content_layout.layoutParams = LinearLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        heightToSet
+                )
+            }
         }
     }
 
@@ -190,6 +218,8 @@ class AcceptPosPaymentFragment : BaseFragment() {
     }
 
     private fun acceptPayment(amount: BigDecimal, asset: Asset) {
+        SoftInputUtil.hideSoftInput(payment_amount_view.editText)
+
         var disposable: Disposable? = null
 
         val progress = ProgressDialogFactory.getDialog(
@@ -261,6 +291,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
     companion object {
         private val PRE_FILLED_AMOUNT = BigDecimal.ONE
+        private const val MIN_LAYOUT_HEIGHT_DP = 340
 
         fun newInstance() = AcceptPosPaymentFragment()
     }
