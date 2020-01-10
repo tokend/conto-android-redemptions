@@ -14,14 +14,16 @@ import org.tokend.wallet.xdr.TransactionEnvelope
  */
 class TxManager(private val apiProvider: ApiProvider) {
 
-    fun submit(transaction: Transaction): Single<SubmitTransactionResponse> =
-            submit(transaction.getEnvelope())
+    fun submit(transaction: Transaction,
+               waitForIngest: Boolean = true): Single<SubmitTransactionResponse> =
+            submit(transaction.getEnvelope(), waitForIngest)
 
-    fun submit(envelope: TransactionEnvelope): Single<SubmitTransactionResponse> {
+    fun submit(envelope: TransactionEnvelope,
+               waitForIngest: Boolean = true): Single<SubmitTransactionResponse> {
         return apiProvider.getApi()
                 .v3
                 .transactions
-                .submit(envelope, true)
+                .submit(envelope, waitForIngest)
                 .toSingle()
     }
 

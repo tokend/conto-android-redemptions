@@ -72,7 +72,7 @@ class AcceptPaymentWithPosTerminalUseCase(
                 }
                 .flatMap {
                     resultSubject.onNext(PaymentAcceptanceState.SUBMITTING_TX)
-                    txManager.submit(paymentTransaction)
+                    txManager.submit(paymentTransaction, waitForIngest = false)
                 }
                 .flatMap {
                     updateRepositories()
@@ -86,7 +86,7 @@ class AcceptPaymentWithPosTerminalUseCase(
                 .toObservable()
 
         return Observable.defer {
-            // Otherwise chain won't be disposed by desposing the
+            // Otherwise chain won't be disposed by disposing the
             // only subscriber of the subject.
             val disposable = chain.subscribeBy(
                     resultSubject::onNext,

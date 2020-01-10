@@ -116,7 +116,7 @@ class ConfirmRedemptionRequestUseCase(
     }
 
     private fun submitTransaction(): Single<SubmitTransactionResponse> {
-        return txManager.submit(transaction)
+        return txManager.submit(transaction, waitForIngest = false)
     }
 
     private fun ensureActualSubmit(): Single<Boolean> {
