@@ -258,7 +258,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
     private fun onPosPaymentAccepted() {
         AlertDialog.Builder(requireContext())
-                .setMessage(R.string.pos_payment_accepted_successfully)
+                .setView(R.layout.dialog_pos_payment_accepted)
                 .setPositiveButton(R.string.ok, null)
                 .show()
     }

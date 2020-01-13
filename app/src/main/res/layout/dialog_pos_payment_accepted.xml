@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/standard_padding"
+    android:paddingTop="@dimen/standard_margin"
+    android:paddingRight="@dimen/standard_padding">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        app:srcCompat="@drawable/ic_check_circle_ok" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/half_standard_margin"
+        android:gravity="center"
+        android:text="@string/pos_payment_accepted_successfully"
+        android:textSize="@dimen/text_size_dialog" />
+</LinearLayout>
