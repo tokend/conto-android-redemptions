@@ -12,13 +12,13 @@ ext {
     // ----- Network params -----
 
     // API URL - TokenD instance root URL
-    api_url = 'https://api.nbu.tokend.io'
+    api_url = 'https://api.demo.bank.gov.ua'
 
     // Storage URL - Root URL of file storage
     storage_url = 'https://s3.eu-central-1.amazonaws.com/nbu-identity-storage-clever-margulis'
 
     // Client URL - URL of the related web-client
-    client_url = 'https://nbu.tokend.io/'
+    client_url = 'https://demo.bank.gov.ua/'
 
     //Allow to log request and response information.
     logs_enabled = true
