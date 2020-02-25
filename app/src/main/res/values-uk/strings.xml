@@ -60,6 +60,14 @@
     <string name="waiting_for_pos_payment">Очікується платіж</string>
     <string name="pos_payment_phones_hint">Піднесіть телефон клієнта</string>
     <string name="pos_payment_accepted_successfully">Платіж прийнято</string>
+    <string name="settings">Налаштування</string>
+    <string name="app_network">Мережа</string>
+    <string name="change_app_network">Змінити мережу</string>
+    <string name="web_client_url">Адреса веб-клієнта</string>
+    <string name="web_client_url_hint">Введіть адресу веб-клієнта Conto</string>
+    <string name="use_this_network">Використовувати цю мережу</string>
+    <string name="error_invalid_network">Некоректна мережа</string>
+    <string name="network_has_been_changed">Мережу змінено</string>
     <string-array name="months">
         <item>Січень</item>
         <item>Лютий</item>

@@ -7,4 +7,5 @@ interface CompanyProvider {
     fun getCompany(): CompanyRecord
     fun setCompany(company: CompanyRecord)
     val lastCompany: CompanyRecord?
+    fun clear()
 }

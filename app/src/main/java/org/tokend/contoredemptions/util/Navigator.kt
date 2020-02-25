@@ -18,6 +18,8 @@ import org.tokend.contoredemptions.features.dashboard.view.DashboardActivity
 import org.tokend.contoredemptions.features.history.data.model.RedemptionRecord
 import org.tokend.contoredemptions.features.history.view.RedemptionDetailsActivity
 import org.tokend.contoredemptions.features.redemption.view.ConfirmRedemptionActivity
+import org.tokend.contoredemptions.features.settings.view.SettingsActivity
+import org.tokend.contoredemptions.features.urlconfig.view.ChangeNetworkActivity
 
 /**
  * Performs transitions between screens.
@@ -137,5 +139,15 @@ class Navigator private constructor() {
         context?.intentFor<BookingDetailsActivity>()
                 ?.putExtras(BookingDetailsActivity.getBundle(bookingRecord))
                 ?.also { performIntent(it, requestCode = requestCode) }
+    }
+
+    fun openSettings() {
+        context?.intentFor<SettingsActivity>()
+                ?.also { performIntent(it) }
+    }
+
+    fun openNetworkChange(requestCode: Int = 0) {
+        context?.intentFor<ChangeNetworkActivity>()
+                ?.also { performIntent(it, requestCode) }
     }
 }

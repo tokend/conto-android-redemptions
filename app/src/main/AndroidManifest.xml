@@ -49,6 +49,13 @@
             android:name=".features.booking.view.BookingDetailsActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.settings.view.SettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.urlconfig.view.ChangeNetworkActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package org.tokend.contoredemptions.util
+package org.tokend.contoredemptions.features.urlconfig.model
 
 import com.google.gson.annotations.SerializedName
 import okhttp3.HttpUrl
@@ -47,8 +47,8 @@ class UrlConfig(
                 .addTrailSlashIfNeeded()
                 .addProtocolIfNeeded()
 
-    val apiDomain: String
-        get() = HttpUrl.parse(api)?.host() ?: api
+    val clientDomain: String
+        get() = HttpUrl.parse(client)?.host() ?: client
 
     private fun String.addTrailSlashIfNeeded(): String {
         return if (this.endsWith('/')) this else this + "/"

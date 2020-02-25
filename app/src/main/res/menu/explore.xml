@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-            android:id="@+id/search"
-            android:icon="@drawable/ic_search"
-            android:title="@string/search"
-            app:iconTint="@color/icons"
-            app:actionViewClass="androidx.appcompat.widget.SearchView"
-            app:showAsAction="collapseActionView|ifRoom"/>
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:iconTint="@color/icons"
+        app:showAsAction="collapseActionView|ifRoom" />
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings"
+        app:iconTint="@color/icons"
+        app:showAsAction="ifRoom" />
 </menu>

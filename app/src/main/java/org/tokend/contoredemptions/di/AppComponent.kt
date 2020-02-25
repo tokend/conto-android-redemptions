@@ -18,7 +18,8 @@ import javax.inject.Singleton
         CompanyProviderModule::class,
         AppDatabaseModule::class,
         LocaleManagerModule::class,
-        UtilsModule::class
+        UtilsModule::class,
+        PersistenceModule::class
     ]
 )
 interface AppComponent {

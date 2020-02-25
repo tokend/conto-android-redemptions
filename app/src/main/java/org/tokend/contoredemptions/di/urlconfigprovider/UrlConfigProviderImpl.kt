@@ -1,6 +1,6 @@
 package org.tokend.contoredemptions.di.urlconfigprovider
 
-import org.tokend.contoredemptions.util.UrlConfig
+import org.tokend.contoredemptions.features.urlconfig.model.UrlConfig
 
 class UrlConfigProviderImpl : UrlConfigProvider {
     private var config: UrlConfig? = null

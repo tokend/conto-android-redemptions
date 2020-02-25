@@ -3,7 +3,7 @@ package org.tokend.contoredemptions.features.assets.data.model
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.NullNode
 import org.tokend.contoredemptions.util.PolicyChecker
-import org.tokend.contoredemptions.util.UrlConfig
+import org.tokend.contoredemptions.features.urlconfig.model.UrlConfig
 import org.tokend.sdk.api.base.model.RemoteFile
 import org.tokend.sdk.api.generated.resources.AssetResource
 import org.tokend.sdk.utils.HashCodes
@@ -22,7 +22,8 @@ class AssetRecord(
         val available: BigDecimal?,
         val maximum: BigDecimal,
         val ownerAccountId: String,
-        override val trailingDigits: Int
+        override val trailingDigits: Int,
+        val localizedNames: Map<String, String>
 ) : Serializable, PolicyChecker, Asset {
     val isBackedByExternalSystem: Boolean
         get() = externalSystemType != null
@@ -58,6 +59,15 @@ class AssetRecord(
         fun fromResource(source: AssetResource, urlConfig: UrlConfig?, mapper: ObjectMapper): AssetRecord {
 
             val name = source.details.get("name")?.takeIf { it !is NullNode }?.asText()
+            val localizedNames = try {
+                mapper.readTree(name)
+                        .fields()
+                        .asSequence()
+                        .map { it.key to it.value.asText() }
+                        .toMap()
+            } catch (_: Exception) {
+                emptyMap<String, String>()
+            }
 
             val logo = source.details.get("logo")?.takeIf { it !is NullNode }?.let {
                 mapper.convertValue(it, RemoteFile::class.java)
@@ -90,7 +100,8 @@ class AssetRecord(
                     available = source.availableForIssuance,
                     maximum = source.maxIssuanceAmount,
                     ownerAccountId = source.owner.id,
-                    trailingDigits = source.trailingDigits.toInt()
+                    trailingDigits = source.trailingDigits.toInt(),
+                    localizedNames = localizedNames
             )
         }
     }

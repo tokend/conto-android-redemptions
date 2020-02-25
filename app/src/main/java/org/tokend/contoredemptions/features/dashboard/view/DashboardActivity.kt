@@ -54,6 +54,11 @@ class DashboardActivity : BaseActivity() {
                     )
 
                     scaleType = ImageView.ScaleType.FIT_START
+
+                    setOnLongClickListener {
+                        Navigator.from(this@DashboardActivity).openSettings()
+                        true
+                    }
                 }
         )
 

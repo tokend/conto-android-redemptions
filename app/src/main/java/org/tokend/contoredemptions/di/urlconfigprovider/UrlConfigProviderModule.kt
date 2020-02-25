@@ -2,7 +2,7 @@ package org.tokend.contoredemptions.di.urlconfigprovider
 
 import dagger.Module
 import dagger.Provides
-import org.tokend.contoredemptions.util.UrlConfig
+import org.tokend.contoredemptions.features.urlconfig.model.UrlConfig
 import javax.inject.Singleton
 
 @Module

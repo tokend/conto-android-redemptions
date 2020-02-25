@@ -9,6 +9,7 @@ import org.jetbrains.anko.childrenSequence
 import org.jetbrains.anko.dip
 import org.tokend.contoredemptions.R
 import org.tokend.contoredemptions.features.assets.data.model.Asset
+import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
 import org.tokend.contoredemptions.util.formatter.AmountFormatter
 import org.tokend.contoredemptions.util.formatter.DateFormatter
 import org.tokend.contoredemptions.view.ScrimCallbackCollapsingToolbarLayout
@@ -104,7 +105,10 @@ class BalanceChangeMainDataView(
             else -> null
         }
 
-        val assetName = asset.name
+        val localizedNames = (asset as? AssetRecord)?.localizedNames
+        val assetName = localizedNames?.get(Locale.getDefault().language)
+                ?: localizedNames?.get("ua")
+                ?: asset.name
         if (assetName != null) {
             assetNameTextView.visibility = View.VISIBLE
             assetNameTextView.text = assetName

@@ -60,6 +60,14 @@
     <string name="waiting_for_pos_payment">Waiting for payment</string>
     <string name="pos_payment_phones_hint">Bring client\'s phone to the back of this one</string>
     <string name="pos_payment_accepted_successfully">Payment has been accepted</string>
+    <string name="settings">Settings</string>
+    <string name="app_network">Network</string>
+    <string name="change_app_network">Change the network</string>
+    <string name="web_client_url">Web-client address</string>
+    <string name="web_client_url_hint">Enter Conto web-client address</string>
+    <string name="use_this_network">Use this network</string>
+    <string name="error_invalid_network">Invalid network</string>
+    <string name="network_has_been_changed">Network has been changed</string>
     <string-array name="months">
         <item>January</item>
         <item>February</item>

@@ -2,7 +2,7 @@ package org.tokend.contoredemptions.features.balances.data.model
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.tokend.contoredemptions.features.assets.data.model.AssetRecord
-import org.tokend.contoredemptions.util.UrlConfig
+import org.tokend.contoredemptions.features.urlconfig.model.UrlConfig
 import org.tokend.sdk.api.generated.resources.BalanceResource
 
 class BalanceRecord(

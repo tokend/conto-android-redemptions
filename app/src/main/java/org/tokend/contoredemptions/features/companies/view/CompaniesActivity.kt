@@ -219,6 +219,11 @@ class CompaniesActivity : BaseActivity() {
             e.printStackTrace()
         }
 
+        menu?.findItem(R.id.settings)?.setOnMenuItemClickListener {
+            Navigator.from(this).openSettings()
+            true
+        }
+
         return super.onCreateOptionsMenu(menu)
     }
 

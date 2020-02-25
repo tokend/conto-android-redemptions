@@ -10,14 +10,15 @@ import androidx.core.content.ContextCompat
 import io.reactivex.disposables.CompositeDisposable
 import org.tokend.contoredemptions.App
 import org.tokend.contoredemptions.R
+import org.tokend.contoredemptions.base.data.repository.ObjectPersistence
 import org.tokend.contoredemptions.di.apiprovider.ApiProvider
 import org.tokend.contoredemptions.di.companyprovider.CompanyProvider
 import org.tokend.contoredemptions.di.repoprovider.RepositoryProvider
 import org.tokend.contoredemptions.di.urlconfigprovider.UrlConfigProvider
+import org.tokend.contoredemptions.features.urlconfig.model.UrlConfig
 import org.tokend.contoredemptions.util.errorhandler.ErrorHandlerFactory
 import org.tokend.contoredemptions.util.formatter.AmountFormatter
 import org.tokend.contoredemptions.util.formatter.DateFormatter
-import org.tokend.contoredemptions.util.locale.AppLocaleManager
 import org.tokend.contoredemptions.view.ToastManager
 import javax.inject.Inject
 
@@ -38,6 +39,8 @@ abstract class BaseActivity : AppCompatActivity() {
     lateinit var apiProvider: ApiProvider
     @Inject
     lateinit var dateFormatter: DateFormatter
+    @Inject
+    lateinit var urlConfigPersistence: ObjectPersistence<UrlConfig>
 
     /**
      * Disposable holder which will be disposed on activity destroy

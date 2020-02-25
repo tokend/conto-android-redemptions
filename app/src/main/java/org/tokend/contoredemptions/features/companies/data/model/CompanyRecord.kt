@@ -1,7 +1,7 @@
 package org.tokend.contoredemptions.features.companies.data.model
 
 import com.google.gson.annotations.SerializedName
-import org.tokend.contoredemptions.util.UrlConfig
+import org.tokend.contoredemptions.features.urlconfig.model.UrlConfig
 import org.tokend.sdk.api.base.model.RemoteFile
 import org.tokend.sdk.api.integrations.dns.model.BusinessResource
 import org.tokend.sdk.factory.GsonFactory
