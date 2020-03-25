@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.widget.TooltipCompat

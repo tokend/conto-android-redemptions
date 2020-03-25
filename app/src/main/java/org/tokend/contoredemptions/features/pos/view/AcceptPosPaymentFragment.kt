@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -240,8 +241,14 @@ class AcceptPosPaymentFragment : BaseFragment() {
         )
                 .perform()
                 .compose(ObservableTransformers.defaultSchedulers())
-                .doOnSubscribe { progress.show() }
-                .doOnTerminate { progress.dismiss() }
+                .doOnSubscribe {
+                    progress.show()
+                    onPosPaymentAcceptingStarted()
+                }
+                .doOnTerminate {
+                    progress.dismiss()
+                    onPosPaymentAcceptingTerminated()
+                }
                 .subscribeBy(
                         onNext = { state ->
                             progress.setMessage(getString(when (state) {
@@ -254,6 +261,10 @@ class AcceptPosPaymentFragment : BaseFragment() {
                         onError = this::onPosPaymentError
                 )
                 .addTo(compositeDisposable)
+    }
+
+    private fun onPosPaymentAcceptingStarted() {
+        enableScreenWakeLock()
     }
 
     private fun onPosPaymentAccepted() {
@@ -274,6 +285,18 @@ class AcceptPosPaymentFragment : BaseFragment() {
                 .show()
     }
 
+    private fun onPosPaymentAcceptingTerminated() {
+        disableScreenWakeLock()
+    }
+
+    private fun enableScreenWakeLock() {
+        requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    private fun disableScreenWakeLock() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
     override fun onPause() {
         super.onPause()
         nfcReader.stop()
@@ -287,6 +310,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         posTerminal.close()
+        disableScreenWakeLock()
     }
 
     companion object {
