@@ -68,6 +68,7 @@
     <string name="use_this_network">Використовувати цю мережу</string>
     <string name="error_invalid_network">Некоректна мережа</string>
     <string name="network_has_been_changed">Мережу змінено</string>
+    <string name="select_more_assets">Вибрати ще</string>
     <string-array name="months">
         <item>Січень</item>
         <item>Лютий</item>

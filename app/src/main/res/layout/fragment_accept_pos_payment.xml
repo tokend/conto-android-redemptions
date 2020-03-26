@@ -92,6 +92,17 @@
 
                     </FrameLayout>
 
+                    <TextView
+                        android:id="@+id/pick_multiple_assets_button"
+                        style="@style/PrimaryActionTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="@dimen/half_standard_margin"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/half_standard_margin"
+                        android:layout_below="@id/asset_picker_layout"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/select_more_assets" />
+
                     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                         android:id="@+id/accept_button"
                         style="@style/ExtendedFab"

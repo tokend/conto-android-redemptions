@@ -315,7 +315,7 @@ class AcceptPosPaymentFragment : BaseFragment() {
 
     companion object {
         private val PRE_FILLED_AMOUNT = BigDecimal.ONE
-        private const val MIN_LAYOUT_HEIGHT_DP = 340
+        private const val MIN_LAYOUT_HEIGHT_DP = 420
 
         fun newInstance() = AcceptPosPaymentFragment()
     }

@@ -68,6 +68,7 @@
     <string name="use_this_network">Use this network</string>
     <string name="error_invalid_network">Invalid network</string>
     <string name="network_has_been_changed">Network has been changed</string>
+    <string name="select_more_assets">Select more</string>
     <string-array name="months">
         <item>January</item>
         <item>February</item>
