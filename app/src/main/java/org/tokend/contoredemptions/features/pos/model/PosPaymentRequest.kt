@@ -35,6 +35,14 @@ class PosPaymentRequest(
         return byteStream.toByteArray()
     }
 
+    override fun hashCode(): Int {
+        return reference.contentHashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is PosPaymentRequest && other.reference.contentEquals(this.reference)
+    }
+
     companion object {
         private const val REFERENCE_SIZE = 32
         private val STRING_CHARSET = Charsets.UTF_8

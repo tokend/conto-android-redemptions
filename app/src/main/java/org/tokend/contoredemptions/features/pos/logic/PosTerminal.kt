@@ -35,7 +35,7 @@ class PosTerminal(
     private val communicationExecutorService = Executors.newFixedThreadPool(4)
 
     private lateinit var transactionsSubject: SingleSubject<TransactionEnvelope>
-    private var currentPaymentRequest: PosPaymentRequest? = null
+    private val currentPaymentRequests: MutableCollection<PosPaymentRequest> = mutableSetOf()
 
     init {
         subscribeToConnections()
@@ -45,8 +45,16 @@ class PosTerminal(
      * Requires connected clients to craft transaction satisfying provided [paymentRequest].
      * Only one payment is accepted.
      */
-    fun requestPayment(paymentRequest: PosPaymentRequest): Single<TransactionEnvelope> {
-        currentPaymentRequest = paymentRequest
+    fun requestPayment(paymentRequest: PosPaymentRequest): Single<TransactionEnvelope> =
+            requestPayment(setOf(paymentRequest))
+
+    /**
+     * Requires connected clients to craft transaction satisfying one of provider [paymentRequests].
+     * Only one payment is accepted.
+     */
+    fun requestPayment(paymentRequests: Collection<PosPaymentRequest>): Single<TransactionEnvelope> {
+        currentPaymentRequests.clear()
+        currentPaymentRequests.addAll(paymentRequests)
         transactionsSubject = SingleSubject.create()
         return transactionsSubject
     }
@@ -59,22 +67,22 @@ class PosTerminal(
     }
 
     private fun onNewConnection(connection: NfcConnection) {
-        val currentRequest = this.currentPaymentRequest
+        val currentRequests = this.currentPaymentRequests
 
-        if (currentRequest == null || !transactionsSubject.hasObservers()) {
+        if (currentRequests.isEmpty() || !transactionsSubject.hasObservers()) {
             return
         }
 
         communicationExecutorService.submit {
-            communicate(connection, currentRequest)
+            communicate(connection, currentRequests)
         }
     }
 
     private fun communicate(connection: NfcConnection,
-                            currentRequest: PosPaymentRequest) {
+                            currentRequests: Collection<PosPaymentRequest>) {
         try {
             connection.open()
-            beginCommunication(connection, currentRequest)
+            beginCommunication(connection, currentRequests)
         } catch (e: Exception) {
             if (e !is TagLostException) {
                 e.printStackTrace()
@@ -92,16 +100,23 @@ class PosTerminal(
 
     private fun beginCommunication(
             connection: NfcConnection,
-            currentRequest: PosPaymentRequest
+            currentRequests: Collection<PosPaymentRequest>
     ) {
         // Select AID.
         var response = sendCommand(connection, PosToClientCommand.SelectAid(AID))
         require(response is ClientToPosResponse.Ok)
 
         // Send payment request.
-        response = sendCommand(connection, PosToClientCommand.SendPaymentRequest(currentRequest))
+        response =
+                if (currentRequests.size == 1)
+                    sendCommand(connection,
+                            PosToClientCommand.SendPaymentRequest(currentRequests.first()))
+                else
+                    sendCommand(connection,
+                            PosToClientCommand.SendMultiplePaymentRequests(currentRequests))
+
         if (response is ClientToPosResponse.PaymentTransaction) {
-            onPaymentTransactionReceived(connection, response, currentRequest)
+            onPaymentTransactionReceived(connection, response, currentRequests)
         } else {
             connection.close()
         }
@@ -110,7 +125,7 @@ class PosTerminal(
     private fun onPaymentTransactionReceived(
             connection: NfcConnection,
             paymentTransactionResponse: ClientToPosResponse.PaymentTransaction,
-            relatedRequest: PosPaymentRequest
+            sentRequests: Collection<PosPaymentRequest>
     ) {
         val envelope = TransactionEnvelope.fromXdr(XdrDataInputStream(
                 ByteArrayInputStream(paymentTransactionResponse.transactionEnvelopeXdr)))
@@ -124,9 +139,10 @@ class PosTerminal(
                 ?: throw IllegalStateException("Received transaction has no payments")
 
         val reference = paymentOp.reference.decodeHex()
-        if (!reference.contentEquals(relatedRequest.reference)) {
-            throw IllegalStateException("Reference mismatch")
-        }
+        val relatedRequest = sentRequests
+                .find { it.reference.contentEquals(reference) }
+                ?: throw IllegalStateException("Received transaction is not related to any of " +
+                        "sent payment requests")
 
         val amount = paymentOp.amount
         if (amount != relatedRequest.precisedAmount) {
@@ -144,7 +160,7 @@ class PosTerminal(
             throw IllegalStateException("Destination mismatch")
         }
 
-        currentPaymentRequest = null
+        currentPaymentRequests.clear()
         transactionsSubject.onSuccess(envelope)
 
         sendCommand(connection, PosToClientCommand.Ok)
